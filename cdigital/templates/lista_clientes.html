@@ -1,0 +1,44 @@
+{% load bootstrap4 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Clientes</title>
+    <link rel="stylesheet" href="{% static 'estilo.css' %}">
+    {% bootstrap_css %}
+</head>
+<body>
+<div class="container mt-4">
+    <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
+    <h2>Clientes Cadastrados</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Cidade</th>
+            </tr>            
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td>
+                    <a href="{% url 'editar_cliente' cliente.pk %}">{{ cliente.nome }}</a>
+                </td>
+                <td>{{ cliente.email }}</td>
+                <td>{{ cliente.telefone }}</td>
+                <td>{{ cliente.cidade }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Nenhum cliente cadastrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% bootstrap_javascript %}
+</body>
+</html>

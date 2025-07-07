@@ -1,0 +1,24 @@
+{% load bootstrap4 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Cliente</title>
+    {% bootstrap_css %}    
+    <link rel="stylesheet" href="{% static 'estilo.css' %}">
+</head>
+<body>
+<div class="container mt-4">
+    <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
+    <h2>Editar Cliente: {{ cliente.nome }}</h2>
+    <form method="post" class="mt-3">
+        {% csrf_token %}
+        {% bootstrap_form form layout='vertical' form_group_class='mb-3' %}
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{% url 'lista_clientes' %}" class="btn btn-warning">Retornar</a>
+    </form>
+</div>
+{% bootstrap_javascript %}
+</body>
+</html>

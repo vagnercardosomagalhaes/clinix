@@ -1,0 +1,67 @@
+{% load static %}
+{% load bootstrap4 %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'estilo.css' %}">
+    <title>Cadastro de Usuários</title>
+    {% bootstrap_css %}
+</head>
+<body>
+    <div class="container mt-5">
+        <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
+        <h1>Cadastro de Usuários</h1>
+        <!-- Exibe mensagens de sucesso ou erro -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <!-- Formulário de cadastro -->
+        <form method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}            
+                <div class="col d-flex gap-2">
+                    <button type="submit" class="btn btn-primary me-5">Cadastrar</button>                
+                    <a href="{% url 'index' %}" class="btn btn-warning btn-lg" role="button">Retornar</a>
+                </div>               
+        </form>
+        <!-- Lista de usuários cadastrados -->
+        <hr>        
+        <h2 class="mt-4">Usuários Cadastrados</h2>
+
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Administrador?</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios_lista %}
+                <tr>
+                    <td>{{ usuario.nome }}</td>
+                    <td>{% if usuario.is_admin %}Sim{% else %}Não{% endif %}</td>
+                    <td>
+                        <a href="{% url 'editar_usuario' usuario.pk %}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{% url 'excluir_usuario' usuario.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir?');">Excluir</a>
+                     </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">Nenhum usuário cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% bootstrap_javascript jquery='full' %}
+</body>
+</html>

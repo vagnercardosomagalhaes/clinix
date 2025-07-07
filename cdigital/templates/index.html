@@ -1,0 +1,37 @@
+{% load bootstrap4 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinix - Seu condultório digital</title>
+    <link rel="stylesheet" href="{% static 'estilo.css' %}">
+</head>
+<body class="index-page">
+    <div class="container-fluid d-flex align-items-center justify-content-center vh-100">
+            <div class="text-center">
+                <div class="faixa-branca text-center py-4 mb-5">                
+                    <img src="{% static 'images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">   
+                </div>
+                <nav class="navbar navbar-dark minha-navbar">
+                    <div class="d-flex">
+                        <a href="{% url 'clientes' %}" class="btn btn-primary btn-lg">CADASTRO DE CLIENTES</a>
+                        &nbsp
+                        <a href="{% url 'agenda' %}" class="btn btn-success btn-lg">AGENDAMENTOS</a>
+                        &nbsp
+                        <a href="{% url 'atendimentos' %}" class="btn btn-info btn-lg">ATENDIMENTOS</a>
+                        &nbsp
+                        <a href="{% url 'usuarios' %}" class="btn btn-warning btn-lg">CONTROLE DE USUÁRIOS</a>                
+                    </div>
+                </nav>
+            </div>    
+        </div>
+            
+    </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<!-- Bootstrap JavaScript -->
+{% bootstrap_javascript %}    
+</body>
+</html>
