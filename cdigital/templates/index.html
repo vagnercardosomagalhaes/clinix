@@ -3,35 +3,98 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clinix - Seu condultório digital</title>
-    <link rel="stylesheet" href="{% static 'estilo.css' %}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clinix - Seu consultório digital</title>
+    <link rel="stylesheet" href="{% static 'estilo.css' %}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body class="index-page">
-    <div class="container-fluid d-flex align-items-center justify-content-center vh-100">
-            <div class="text-center">
-                <div class="faixa-branca text-center py-4 mb-5">                
-                    <img src="{% static 'images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">   
-                </div>
-                <nav class="navbar navbar-dark minha-navbar">
-                    <div class="d-flex">
-                        <a href="{% url 'clientes' %}" class="btn btn-primary btn-lg">CADASTRO DE CLIENTES</a>
-                        &nbsp
-                        <a href="{% url 'agenda' %}" class="btn btn-success btn-lg">AGENDAMENTOS</a>
-                        &nbsp
-                        <a href="{% url 'atendimentos' %}" class="btn btn-info btn-lg">ATENDIMENTOS</a>
-                        &nbsp
-                        <a href="{% url 'usuarios' %}" class="btn btn-warning btn-lg">CONTROLE DE USUÁRIOS</a>                
-                    </div>
-                </nav>
-            </div>    
+
+    {% if not login_ok %}
+    <!-- Modal de Login padrão Bootstrap -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form method="post" action="/">
+            {% csrf_token %}
+            <div class="modal-header">
+              <h5 class="modal-title" id="loginModalLabel">Acesso ao Sistema</h5>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="id_login" class="form-label">Login</label>
+                <input type="text" class="form-control" id="id_login" name="login" required autocorrect="off" autocapitalize="none" autocomplete="off"/>
+              </div>
+              <div class="mb-3">
+                <label for="id_password" class="form-label">Senha</label>
+                <input type="password" class="form-control" id="id_password" name="senha" required />
+              </div>
+
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Entrar</button>
+            </div>
+          </form>
         </div>
-            
+      </div>
     </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-<!-- Bootstrap JavaScript -->
-{% bootstrap_javascript %}    
+    {% endif %}
+
+    <div class="container-fluid d-flex flex-column align-items-center justify-content-center vh-100">
+      
+      <div class="d-flex justify-content-center align-items-center vh-30 mb-3">
+        <img src="{% static 'images/logo.png' %}" alt="Clinix Logo" class="img-fluid d-block mx-auto"  style="max-width: 300px;" />
+      </div>
+
+      {% if login_ok %}
+      <div class="alert alert-success text-center w-100">
+        Bem-vindo ao sistema, {{ request.session.usuario_nome }}!
+      </div>
+      {% endif %}
+
+      <nav class="navbar navbar-dark minha-navbar w-100">
+        <div class="d-flex flex-wrap justify-content-center gap-3 w-100">
+          <a href="{% url 'clientes' %}" class="btn btn-primary btn-lg">CADASTRO DE CLIENTES</a>
+          <a href="{% url 'agenda' %}" class="btn btn-success btn-lg">AGENDAMENTOS</a>
+          <a href="{% url 'atendimentos' %}" class="btn btn-info btn-lg">ATENDIMENTOS</a>
+          <a href="{% url 'usuarios' %}" class="btn btn-warning btn-lg">CONTROLE DE USUÁRIOS</a>
+        </div>
+      </nav>
+
+    </div>
+    {% if request.session.usuario_admin %}
+      <a href="{% url 'usuarios' %}">CONTROLE DE USUÁRIOS</a>
+      <a href="{% url 'atendimentos' %}">ATENDIMENTOS</a>
+    {% endif %}
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    {% bootstrap_javascript %} 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+          document.addEventListener('DOMContentLoaded', function () {
+          var login_ok = {{ login_ok|yesno:"true,false"|lower }}; // This outputs true/false as JS boolean
+          
+          var loginModalEl = document.getElementById('loginModal');
+          if (loginModalEl) {
+            var loginModal = new bootstrap.Modal(loginModalEl);
+            
+            if (!login_ok) {
+              loginModal.show();
+            } else {
+              loginModal.hide(); // por segurança, caso ainda esteja visível
+            }
+          }
+        });
+    </script>
+
 </body>
 </html>

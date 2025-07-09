@@ -1,3 +1,12 @@
+{% load static %}
+{% load bootstrap4 %}
+
+{% if request.session.usuario_admin %}
+  <h1>Página de atendimentos</h1>
+  <!-- Conteúdo restrito -->
+{% else %}
+  <div class="alert alert-danger">Acesso negado</div>
+{% endif %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>

@@ -36,12 +36,16 @@ class UsuariosForm(forms.ModelForm):
     )
     class Meta:
         model = Usuarios
-        fields = ['nome', 'email', 'senha', 'senha2', 'is_admin']
+        fields = ['nome', 'email', 'login', 'senha', 'senha2', 'is_admin']
         widgets = {
-            'senha': forms.PasswordInput(attrs={'placeholder': 'Digite a senha'}),
+            'senha': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'login': forms.TextInput(attrs={'class': 'form-control'}),
         }
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['login'].required = True
 
         # Só mostra help_text se for edição (instância já salva no banco)
         if self.instance and self.instance.pk:
@@ -65,25 +69,34 @@ class UsuariosForm(forms.ModelForm):
             return cleaned_data
     
     def save(self, commit=True):
-        instance = super().save(commit=False)
-        senha = self.cleaned_data.get('senha')
-
-        if senha:
-            instance.senha = make_password(senha)
+        usuario = super().save(commit=False)
+        usuario.senha = make_password(self.cleaned_data['senha'])
 
         if commit:
-            instance.save()
-
-        return instance
-
+            usuario.save()
+        return usuario
 
 
-class AgendaForm(forms.Form):
-    cliente = forms.ModelChoiceField(queryset=Clientes.objects.all(), label='Cliente')
-    data = forms.DateField(label='Data')
-    hora_inicio = forms.TimeField(label='Hora de Início')
-    hora_fim = forms.TimeField(label='Hora de Fim')
-    descricao = forms.CharField(widget=forms.Textarea, required=False, label='Descrição')
+class LoginForm(forms.Form):
+    login = forms.CharField(label="Usuário", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    senha = forms.CharField(label="Senha", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+
+class AgendaForm(forms.ModelForm):
+    class Meta:
+        model = Agenda
+        fields = ['cliente', 'data', 'hora_inicio', 'hora_fim', 'descricao']
+        widgets = {
+            'data': forms.DateInput(attrs={
+                'class': 'form-control',
+                'id': 'id_data',
+                'autocomplete': 'off',}),
+            'hora_inicio': forms.TimeInput(attrs={'class': 'form-control'}),
+            'hora_fim': forms.TimeInput(attrs={'class': 'form-control'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control'}),
+            
+        }
+    
 
 class AtendimentosForm(forms.Form):
     cliente = forms.ModelChoiceField(queryset=Clientes.objects.all(), label='Cliente')

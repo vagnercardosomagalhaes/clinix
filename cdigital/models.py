@@ -41,13 +41,14 @@ signals.pre_save.connect(clientes_pre_save, sender=Clientes)
 
 class Agenda(Base):
     cliente = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='agendas')
+    telefone = models.CharField('Telefone', max_length=15, blank=True, null=True)    
     data = models.DateField('Data')
     hora_inicio = models.TimeField('Hora de Início')
     hora_fim = models.TimeField('Hora de Fim')
     descricao = models.TextField('Descrição', blank=True, null=True)
 
     def __str__(self):
-        return f"{self.cliente.nome} - {self.data} {self.hora_inicio} - {self.hora_fim}"
+        return f"{self.cliente.nome} - {self.cliente.telefone}- {self.data} {self.hora_inicio} - {self.hora_fim}"
     
 class Atendimentos(Base):
     cliente = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='atendimentos')
@@ -59,9 +60,10 @@ class Atendimentos(Base):
     def __str__(self):
         return f"{self.cliente.nome} - {self.data} {self.hora_inicio} - {self.hora_fim}"
 
-class Usuarios(Base):
+class Usuarios(models.Model):
     nome = models.CharField('Nome', max_length=100)
     email = models.EmailField('Email', unique=True)
+    login = models.CharField('Login', max_length=100, unique=True, null=True, blank=True)
     senha = models.CharField('Senha', max_length=128)
     is_admin = models.BooleanField('É Administrador?', default=False)
     slug = models.SlugField(unique=True, blank=True)

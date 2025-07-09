@@ -3,6 +3,7 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+
 .minha-navbar {
     background-color:lightseagreen ; /* azul escuro, altere como quiser */
     padding-top: 1rem;
@@ -31,6 +32,16 @@ a{
     text-decoration: none;
 }
 
-input[type="text"] {
-    text-transform: uppercase;
+
+input[type="email"] {
+    text-transform: none;
+}
+
+#id_login {
+  text-transform: none !important;
+}
+
+input[type="text"],
+#id_login {
+  text-transform: none !important;
 }
