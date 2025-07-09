@@ -17,6 +17,7 @@ urlpatterns = [
     path('autocomplete/cliente/', views.autocomplete_cliente, name='autocomplete_cliente'),
     
     path('atendimentos/', views.atendimentos, name='atendimentos'),
+    path('atendimento/editar/<int:agenda_id>/', views.editar_atendimento, name='editar_atendimento'),
     
     path('usuarios/', views.usuarios, name='usuarios'),    
     path('usuarios/editar/<int:pk>/', views.editar_usuario, name='editar_usuario'),    

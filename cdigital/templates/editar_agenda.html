@@ -45,6 +45,21 @@
     {% csrf_token %}
     
     <div class="mb-3">
+        <label for="id_profissional" class="form-label">Profissional</label>
+        <select name="profissional" id="id_profissional" class="form-control">
+            <option value="">--- Selecione um profissional ---</option>
+            {% for profissional in profissionais %}
+                <option value="{{ profissional.id }}"
+                    {% if form.profissional.value|stringformat:"s" == profissional.id|stringformat:"s" %}
+                        selected
+                    {% endif %}>
+                    {{ profissional.nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
     <label for="id_cliente" class="form-label">Cliente</label>
     <select name="cliente" id="id_cliente" class="form-control">
         <option value="">--- Selecione um cliente ---</option>
@@ -85,6 +100,11 @@
 
     <button type="submit" class="btn btn-success">Salvar</button>
     <a href="{% url 'agenda' %}" class="btn btn-warning">Retornar</a>
+    <a href="#" id="whatsappLink" class="btn btn-success ms-2" target="_blank" title="Enviar WhatsApp">
+        <img src="https://img.icons8.com/color/24/000000/whatsapp--v1.png" alt="WhatsApp">
+    </a>
+    
+    <a href="{% url 'index' %}" class="btn btn-primary ms-2">Retornar ao Início</a>
 </form>
         </div>
     </div>
@@ -117,5 +137,32 @@
 </script>
 
     {% bootstrap_javascript jquery='full' %}
+    <script>
+    document.getElementById('whatsappLink').addEventListener('click', function(e) {
+        const profissionalSelect = document.getElementById('id_profissional');
+        const nomeProfissional = profissionalSelect.options[profissionalSelect.selectedIndex].text.trim();
+        const telefone = document.getElementById('id_telefone').value;
+        const clienteSelect = document.getElementById('id_cliente');
+        const nomeCliente = clienteSelect.options[clienteSelect.selectedIndex].text.trim();
+        const dataConsulta = document.getElementById('id_data')?.value;
+        const horaConsulta = document.getElementById('id_hora_inicio')?.value;
+
+        if (!telefone || !nomeCliente || !dataConsulta || !horaConsulta || !nomeProfissional) {
+            alert('Preencha o cliente, profissiona, telefone, data e hora do agendamento.');
+            e.preventDefault();
+            return;
+        }
+
+        const numeroLimpo = telefone.replace(/\D/g, '');
+
+        // Formata a data para dd/mm/yyyy se estiver no formato yyyy-mm-dd
+        const partesData = dataConsulta.split('-');
+        const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : dataConsulta;
+
+        const mensagem = encodeURIComponent(`Olá, ${nomeCliente} este é um lembrete do seu agendamento com o Dr(a): ${nomeProfissional}. Data ${dataFormatada} às ${horaConsulta}.`);
+        const link = `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${mensagem}`;
+        this.href = link;
+    });
+</script>
 </body>
 </html>

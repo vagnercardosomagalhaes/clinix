@@ -151,12 +151,47 @@ def lista_clientes(request):
 #*******************************************************************************
     
 def atendimentos(request):
-    return render(request, 'atendimentos.html')
+    hoje = date.today()
+    agendamentos_hoje = Agenda.objects.select_related('cliente')\
+        .filter(data=hoje)\
+        .order_by('hora_inicio')
+    print([(a.cliente.nome, a.telefone) for a in agendamentos_hoje])  # DEBUG
+    return render(request, 'atendimentos.html', {
+        'data_hoje': hoje,
+        'atendimentos': agendamentos_hoje
+    })
+
+#*******************************************************************************
+def editar_atendimento(request, agenda_id):
+    agendamento = get_object_or_404(Agenda, id=agenda_id)
+    cliente = agendamento.cliente
+
+    if request.method == 'POST':
+        descricao = request.POST.get('descricao', '').strip()
+
+        Atendimentos.objects.create(
+            cliente=cliente,
+            data=agendamento.data,
+            hora_inicio=agendamento.hora_inicio,
+            hora_fim=agendamento.hora_fim,
+            descricao=descricao
+        )
+        return redirect('atendimentos')
+
+    # Busca atendimentos anteriores desse cliente ordenando data DESC
+    atendimentos_anteriores = Atendimentos.objects.filter(cliente=cliente).order_by('-data')
+
+    return render(request, 'editar_atendimento.html', {
+        'agendamento': agendamento,
+        'atendimentos_anteriores': atendimentos_anteriores
+    })
 #*******************************************************************************
 def agenda(request):
     form = AgendaForm()
     data_filtro = request.GET.get('data')  # captura a data enviada no filtro
-    agenda_lista = Agenda.objects.all()
+    agenda_lista = Agenda.objects.all().order_by('data', 'hora_inicio')
+
+    profissionais = Usuarios.objects.all()
 
     if data_filtro:
         agenda_lista = agenda_lista.filter(data=data_filtro).order_by('hora_inicio')
@@ -180,20 +215,16 @@ def agenda(request):
         'form': form,
         'agenda_lista': agenda_lista,
         'data_filtro': data_filtro,
+        'profissionais': profissionais,
     }
     return render(request, 'agenda.html', context)
 
-    #agenda_lista = Agenda.objects.all().order_by('data', 'hora_inicio')  # Busca todos os agendamentos para exibir na lista
-    #return render(request, 'agenda.html', {
-    #    'form': form,
-    #    'agenda_lista': agenda_lista,
-    #    'data_filtro': data_filtro or  date.today().isoformat()
-    #})
-
-
+#*******************************************************************************
 
 def editar_agenda(request, id):
     agendamento = get_object_or_404(Agenda, pk=id)
+    profissionais = Usuarios.objects.all()  # <-- você já pegou aqui, mas não usou no render
+
     if request.method == 'POST':
         form = AgendaForm(request.POST, instance=agendamento)
         if form.is_valid():
@@ -202,8 +233,12 @@ def editar_agenda(request, id):
             return redirect('agenda')
     else:
         form = AgendaForm(instance=agendamento)
-    return render(request, 'editar_agenda.html', {'form': form})
 
+    return render(request, 'editar_agenda.html', {
+        'form': form,
+        'profissionais': profissionais  # <-- ESSENCIAL!
+    })
+#*******************************************************************************
 def excluir_agenda(request, id):
     agendamento = get_object_or_404(Agenda, pk=id)
     if request.method == 'POST':

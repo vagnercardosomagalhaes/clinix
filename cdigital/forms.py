@@ -85,7 +85,7 @@ class LoginForm(forms.Form):
 class AgendaForm(forms.ModelForm):
     class Meta:
         model = Agenda
-        fields = ['cliente', 'data', 'hora_inicio', 'hora_fim', 'descricao']
+        fields = ['profissional','cliente', 'data', 'hora_inicio', 'hora_fim', 'descricao']
         widgets = {
             'data': forms.DateInput(attrs={
                 'class': 'form-control',

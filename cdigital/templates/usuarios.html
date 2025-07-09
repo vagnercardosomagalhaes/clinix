@@ -27,8 +27,9 @@
             {% csrf_token %}
             {% bootstrap_form form %}            
                 <div class="col d-flex gap-2">
-                    <button type="submit" class="btn btn-primary me-5">Cadastrar</button>                
-                    <a href="{% url 'index' %}" class="btn btn-warning btn-lg" role="button">Retornar</a>
+                    <button type="submit" class="btn btn-primary ms-2">Cadastrar</button> 
+                    &emsp;               
+                    <a href="{% url 'index' %}" class="btn btn-warning ms-2" role="button">Retornar para o início</a>                    
                 </div>               
         </form>
         <!-- Lista de usuários cadastrados -->

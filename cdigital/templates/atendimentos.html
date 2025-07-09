@@ -1,22 +1,49 @@
-{% load static %}
 {% load bootstrap4 %}
-
-{% if request.session.usuario_admin %}
-  <h1>Página de atendimentos</h1>
-  <!-- Conteúdo restrito -->
-{% else %}
-  <div class="alert alert-danger">Acesso negado</div>
-{% endif %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamentos do Dia</title>
+    {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'estilo.css' %}">
-    <title>Atendimentos</title>
 </head>
 <body>
-    <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
-    <h1>Atendimentos</h1>
+  <div class="container">
+    {% bootstrap_messages %}
+    <img src="{% static 'images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
+    <h1 style="color: blue;">Agendamentos do dia {{ data_hoje|date:"d/m/Y" }}</h1>
+
+    {% if atendimentos %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Cliente</th>                   
+                    <th>Descrição</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agendamento in atendimentos %}
+                <tr>
+                    <td>{{ agendamento.hora_inicio|time:"H:i" }} - {{ agendamento.hora_fim|time:"H:i" }}</td>
+                    <td>{{ agendamento.cliente.nome }}</td>                    
+                    <td>{{ agendamento.descricao }}</td>
+                    <td>
+                      <a href="{% url 'editar_atendimento' agendamento.id %}" class="btn btn-warning btn-sm">
+                          Editar
+                      </a>
+                  </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="color: crimson;">Nenhum agendamento para hoje.</p>
+    {% endif %}
+    <a href="{% url 'index' %}" class="btn btn-primary mt-3">Retornar ao Início</a>
+  </div>  
+{% bootstrap_javascript %}    
 </body>
 </html>

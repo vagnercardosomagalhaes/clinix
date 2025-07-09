@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.db.models import signals
 from django.contrib.auth.hashers import make_password, is_password_usable
+from django.utils import timezone
 
 class Base(models.Model):
 
@@ -39,27 +40,6 @@ def clientes_pre_save(sender, instance, **kwargs):
 
 signals.pre_save.connect(clientes_pre_save, sender=Clientes)
 
-class Agenda(Base):
-    cliente = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='agendas')
-    telefone = models.CharField('Telefone', max_length=15, blank=True, null=True)    
-    data = models.DateField('Data')
-    hora_inicio = models.TimeField('Hora de Início')
-    hora_fim = models.TimeField('Hora de Fim')
-    descricao = models.TextField('Descrição', blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.cliente.nome} - {self.cliente.telefone}- {self.data} {self.hora_inicio} - {self.hora_fim}"
-    
-class Atendimentos(Base):
-    cliente = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='atendimentos')
-    data = models.DateField('Data')
-    hora_inicio = models.TimeField('Hora de Início')
-    hora_fim = models.TimeField('Hora de Fim')
-    descricao = models.TextField('Descrição', blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.cliente.nome} - {self.data} {self.hora_inicio} - {self.hora_fim}"
-
 class Usuarios(models.Model):
     nome = models.CharField('Nome', max_length=100)
     email = models.EmailField('Email', unique=True)
@@ -79,6 +59,29 @@ class Usuarios(models.Model):
             self.senha = make_password(self.senha)
 
         super().save(*args, **kwargs)
+
+class Agenda(models.Model):
+    criado = models.DateTimeField(default=timezone.now)
+    profissional = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='agendas')
+    telefone = models.CharField('Telefone', max_length=15, blank=True, null=True)    
+    data = models.DateField('Data')
+    hora_inicio = models.TimeField('Hora de Início')
+    hora_fim = models.TimeField('Hora de Fim')
+    descricao = models.TextField('Descrição', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.cliente.nome} - {self.cliente.telefone}- {self.data} {self.hora_inicio} - {self.hora_fim}"
+    
+class Atendimentos(Base):
+    cliente = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='atendimentos')
+    data = models.DateField('Data')
+    hora_inicio = models.TimeField('Hora de Início')
+    hora_fim = models.TimeField('Hora de Fim')
+    descricao = models.TextField('Descrição', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.cliente.nome} - {self.data} {self.hora_inicio} - {self.hora_fim}"
 
 
 
