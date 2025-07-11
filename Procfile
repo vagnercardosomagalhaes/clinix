@@ -1,1 +1,1 @@
-web:gunicorn cdigital.wsgi --log-file-
+web: gunicorn consultoriodigital.wsgi --log-file -
