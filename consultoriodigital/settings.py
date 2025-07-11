@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cdigital', #aplicação que eu criei # ****************************************
     'bootstrap4', # **************************************************************
-    'stdimage',   # **************************************************************           
+    'stdimage',   # ************************************************************** 
+    'widget_tweaks',#*************************************************************          
 ]
 
 MIDDLEWARE = [
@@ -77,18 +81,22 @@ WSGI_APPLICATION = 'consultoriodigital.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# ************************************************************** USANDO MYSQL
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME':'cdigital',
+#        'USER':'Usuario_Root',
+#        'PASSWORD':'Tr18365518AaBbCcDdEe#!',
+#        'HOST':'localhost',
+#        'PORT':'3308',
+#    }
+#}
 # **************************************************************
+# ************************************************************** USANDO POSTGRESQL COM HEROKU
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME':'cdigital',
-        'USER':'Usuario_Root',
-        'PASSWORD':'Tr18365518AaBbCcDdEe#!',
-        'HOST':'localhost',
-        'PORT':'3308',
-    }
-}
-# **************************************************************
+        'default': dj_database_url.config()
+}    
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

@@ -1,4 +1,5 @@
 {% load static %}
+{% load widget_tweaks %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -127,12 +128,12 @@
 
                 <div class="mb-3">
                     <label class="form-label">Hora Início</label>
-                    {{ form.hora_inicio }}
+                    {{ form.hora_inicio|add_class:"form-control" }}
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Hora Fim</label>
-                    {{ form.hora_fim }}
+                    {{ form.hora_fim|add_class:"form-control" }}
                 </div>
 
                 <div class="mb-3">
@@ -170,6 +171,24 @@
         // Máscara nos campos de hora
         $(document).ready(function(){
             $("#id_hora_inicio, #id_hora_fim").inputmask("99:99");
+        });
+
+        // Atualiza automaticamente a hora fim
+        $("#id_hora_inicio").on("blur", function() {
+            const horaInicio = $(this).val();
+
+            // Verifica se a hora está no formato correto
+            if (/^\d{2}:\d{2}$/.test(horaInicio)) {
+                const [hora, minuto] = horaInicio.split(":").map(Number);
+
+                if (hora < 24 && minuto < 60) {
+                    let novaHora = hora + 1;
+                    if (novaHora >= 24) novaHora = 0;
+
+                    const horaFormatada = String(novaHora).padStart(2, "0") + ":" + String(minuto).padStart(2, "0");
+                    $("#id_hora_fim").val(horaFormatada);
+                }
+            }
         });
 
         

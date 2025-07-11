@@ -1,0 +1,1 @@
+web:gunicorn cdigital.wsgi --log-file-

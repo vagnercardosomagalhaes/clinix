@@ -91,8 +91,8 @@ class AgendaForm(forms.ModelForm):
                 'class': 'form-control',
                 'id': 'id_data',
                 'autocomplete': 'off',}),
-            'hora_inicio': forms.TimeInput(attrs={'class': 'form-control'}),
-            'hora_fim': forms.TimeInput(attrs={'class': 'form-control'}),
+            'hora_inicio': forms.TimeInput(attrs={'id': 'id_hora_inicio','placeholder': '00:00'}),
+            'hora_fim': forms.TimeInput(attrs={'id': 'id_hora_fim','placeholder': '00:00'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control'}),
             
         }
