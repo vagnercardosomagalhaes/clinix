@@ -15,6 +15,10 @@ urlpatterns = [
     path('clientes/editar/<int:pk>/', views.editar_cliente, name='editar_cliente'),
     path('clientes/excluir/<int:pk>/', views.excluir_cliente, name='excluir_cliente'),
     path('autocomplete/cliente/', views.autocomplete_cliente, name='autocomplete_cliente'),
+
+    path('convenios/', views.convenios, name='convenios'),
+    path('convenios/editar/<int:id>/', views.editar_convenio, name='editar_convenio'),
+    path('convenios/excluir/<int:id>/', views.excluir_convenio, name='excluir_convenio'),
     
     path('atendimentos/', views.atendimentos, name='atendimentos'),
     path('atendimento/editar/<int:agenda_id>/', views.editar_atendimento, name='editar_atendimento'),
@@ -26,5 +30,8 @@ urlpatterns = [
     path('agenda/', views.agenda, name='agenda'),
     path('agenda/editar/<int:id>/', views.editar_agenda, name='editar_agenda'),
     path('agenda/excluir/<int:id>/', views.excluir_agenda, name='excluir_agenda'),
+    path('', views.index, name='index'),
+    path('logout/', views.logout_view, name='logout'),
+    
     #path('contato/', contato, name='contato'),    
 ]

@@ -25,9 +25,21 @@
         </div>
 
         <div class="form-group">
-            <label>Descrição</label>
-            <textarea name="descricao" class="form-control" rows="5" placeholder="Digite a descrição do atendimento..."></textarea>
-        </div>
+        <label>Descrição</label>
+        <textarea name="descricao" class="form-control" rows="5" placeholder="Digite a descrição do atendimento...">{{ agendamento.descricao }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Profissional responsável</label>
+        <select name="profissional" class="form-control">
+            {% for profissional in profissionais %}
+                <option value="{{ profissional.id }}" {% if agendamento.profissional.id == profissional.id %}selected{% endif %}>
+                    {{ profissional.nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
 
         <button type="submit" class="btn btn-success">Salvar Atendimento</button>
         <a href="{% url 'atendimentos' %}" class="btn btn-secondary">Retornar</a>

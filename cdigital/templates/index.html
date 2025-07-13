@@ -51,21 +51,52 @@
       <div class="d-flex justify-content-center align-items-center vh-30 mb-3">
         <img src="{% static 'images/logo.png' %}" alt="Clinix Logo" class="img-fluid d-block mx-auto"  style="max-width: 300px;" />
       </div>
-
       {% if login_ok %}
       <div class="alert alert-success text-center w-100">
         Bem-vindo ao sistema, {{ request.session.usuario_nome }}!
       </div>
       {% endif %}
-
+      <nav class="navbar navbar-expand-lg navbar navbar-dark bg-dark w-100">          
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Cadastros
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{% url 'clientes' %}">Clientes</a>
+                  <a class="dropdown-item" href="{% url 'convenios' %}">Convênios</a>                  
+                </div>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'agenda' %}">Agendamentos</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'atendimentos' %}">Atendimentos</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'usuarios' %}">Controle de usuários</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">Sair</a>
+              </li>
+            </ul>            
+          </div>
+        </nav>
+      <!--  
       <nav class="navbar navbar-dark minha-navbar w-100">
         <div class="d-flex flex-wrap justify-content-center gap-3 w-100">
           <a href="{% url 'clientes' %}" class="btn btn-primary btn-lg">CADASTRO DE CLIENTES</a>
           <a href="{% url 'agenda' %}" class="btn btn-success btn-lg">AGENDAMENTOS</a>
           <a href="{% url 'atendimentos' %}" class="btn btn-info btn-lg">ATENDIMENTOS</a>
           <a href="{% url 'usuarios' %}" class="btn btn-warning btn-lg">CONTROLE DE USUÁRIOS</a>
+          <a href="{% url 'logout' %}" class="btn btn-danger">SAIR</a>
         </div>
       </nav>
+      -->
 
     </div>
     {% if request.session.usuario_admin %}

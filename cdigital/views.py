@@ -1,20 +1,28 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import Clientes, Usuarios, Agenda, Atendimentos
-from .forms import Clientesform, UsuariosForm, AgendaForm, AtendimentosForm
+from .models import Clientes, Usuarios, Agenda, Atendimentos, Convenios
+from .forms import Clientesform, UsuariosForm, AgendaForm, AtendimentosForm, Conveniosform
 from .forms import ClientesModelForm, UsuariosModelForm, AgendaModelForm, AtendimentosModelForm
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from cdigital.models import Usuarios  
 from datetime import date
 from .forms import LoginForm
+from django.contrib.auth import login as django_login
 from django import forms
 from django.db.models import Q
+from django.contrib.auth import logout
+from django.db.utils import IntegrityError
 
 
 def index(request):
     login_ok = False
+
+    # FORÇA DESLOGAR do Django auth (caso esteja autenticado)
+    request.session.pop('_auth_user_id', None)
+    request.session.pop('_auth_user_backend', None)
+    request.session.pop('_auth_user_hash', None)
 
     if request.method == 'POST':
         login = request.POST.get('login', '').strip()
@@ -22,7 +30,7 @@ def index(request):
 
         try:
             usuario = Usuarios.objects.get(login__iexact=login)
-            if check_password(senha, usuario.senha):  # compara hash com texto puro
+            if check_password(senha, usuario.senha):
                 request.session['usuario_id'] = usuario.id
                 request.session['usuario_nome'] = usuario.nome
                 request.session['usuario_admin'] = usuario.is_admin
@@ -36,7 +44,65 @@ def index(request):
         login_ok = True
 
     return render(request, 'index.html', {'login_ok': login_ok})
+#*******************************************************************************
 
+def logout_view(request):
+    request.session.flush()  # remove tudo da sessão, inclusive chaves do Django auth
+    return redirect('/')
+
+#*******************************************************************************
+def convenios(request):
+    if str(request.method) == 'POST':
+        form = Conveniosform(request.POST or None)
+        if form.is_valid():            
+            try:
+                form.save()
+                messages.success(request, 'Convênio cadastrado com sucesso!')
+                return redirect('convenios')
+            except IntegrityError:
+                messages.error(request, 'Este convênio já está cadastrado.')
+        else:
+            messages.error(request, 'Erro ao cadastrar o convenio. Verifique os dados e tente novamente.')
+    else:
+        form = Conveniosform()
+        context = {
+            'form': form,
+        }
+    convenios_cadastrados = Convenios.objects.all().order_by('nomeconvenio')
+
+    return render(request, 'convenios.html', {
+        'form': form,
+        'convenios_cadastrados': convenios_cadastrados
+    })                                 
+#*******************************************************************************
+def editar_convenio(request, id):
+    convenio = get_object_or_404(Convenios, id=id)
+    if request.method == 'POST':
+        form = Conveniosform(request.POST, instance=convenio)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, 'Convênio atualizado com sucesso!')
+                return redirect('convenios')
+            except IntegrityError:
+                messages.error(request, 'Já existe um convênio com esse nome.')
+    else:
+        form = Conveniosform(instance=convenio)
+
+    convenios_cadastrados = Convenios.objects.all().order_by('nomeconvenio')
+
+    return render(request, 'convenios.html', {
+        'form': form,
+        'editando': True,
+        'convenio_id': id,
+        'convenios_cadastrados': convenios_cadastrados
+    })
+#*******************************************************************************
+def excluir_convenio(request, id):
+    convenio = get_object_or_404(Convenios, id=id)
+    convenio.delete()
+    messages.success(request, 'Convênio excluído com sucesso!')
+    return redirect('convenios')
 #*******************************************************************************
 def clientes(request):
     if str(request.method) == 'POST':
@@ -152,37 +218,44 @@ def lista_clientes(request):
     
 def atendimentos(request):
     hoje = date.today()
-    agendamentos_hoje = Agenda.objects.select_related('cliente')\
-        .filter(data=hoje)\
-        .order_by('hora_inicio')
-    print([(a.cliente.nome, a.telefone) for a in agendamentos_hoje])  # DEBUG
+    profissional_id = request.GET.get('profissional')
+
+    profissionais = Usuarios.objects.filter(is_medico=True)
+    atendimentos = Atendimentos.objects.filter(data=hoje)
+
+    if profissional_id:
+        atendimentos = atendimentos.filter(profissional_id=profissional_id)
+
     return render(request, 'atendimentos.html', {
         'data_hoje': hoje,
-        'atendimentos': agendamentos_hoje
+        'profissionais': profissionais,
+        'atendimentos': atendimentos
     })
 
 #*******************************************************************************
-def editar_atendimento(request, agenda_id):
-    agendamento = get_object_or_404(Agenda, id=agenda_id)
-    cliente = agendamento.cliente
+def editar_atendimento(request, id):
+    agendamento = get_object_or_404(Atendimentos, pk=id)
+    profissionais = Usuarios.objects.filter(is_medico=True)
 
     if request.method == 'POST':
-        descricao = request.POST.get('descricao', '').strip()
+        descricao = request.POST.get('descricao')
+        profissional_id = request.POST.get('profissional')
 
-        Atendimentos.objects.create(
-            cliente=cliente,
-            data=agendamento.data,
-            hora_inicio=agendamento.hora_inicio,
-            hora_fim=agendamento.hora_fim,
-            descricao=descricao
-        )
+        agendamento.descricao = descricao
+        agendamento.profissional_id = profissional_id
+        agendamento.save()
+
+        messages.success(request, 'Atendimento atualizado com sucesso!')
         return redirect('atendimentos')
 
-    # Busca atendimentos anteriores desse cliente ordenando data DESC
-    atendimentos_anteriores = Atendimentos.objects.filter(cliente=cliente).order_by('-data')
+    # Buscar atendimentos anteriores do mesmo cliente
+    atendimentos_anteriores = Atendimentos.objects.filter(
+        cliente=agendamento.cliente
+    ).exclude(pk=agendamento.pk).order_by('-data')
 
     return render(request, 'editar_atendimento.html', {
         'agendamento': agendamento,
+        'profissionais': profissionais,
         'atendimentos_anteriores': atendimentos_anteriores
     })
 #*******************************************************************************
@@ -191,7 +264,8 @@ def agenda(request):
     data_filtro = request.GET.get('data')  # captura a data enviada no filtro
     agenda_lista = Agenda.objects.all().order_by('data', 'hora_inicio')
 
-    profissionais = Usuarios.objects.all()
+    profissionais = Usuarios.objects.filter(is_medico=True)
+    convenios = Convenios.objects.all()
 
     if data_filtro:
         agenda_lista = agenda_lista.filter(data=data_filtro).order_by('hora_inicio')
@@ -216,6 +290,7 @@ def agenda(request):
         'agenda_lista': agenda_lista,
         'data_filtro': data_filtro,
         'profissionais': profissionais,
+        'convenios': convenios,
     }
     return render(request, 'agenda.html', context)
 
@@ -224,6 +299,7 @@ def agenda(request):
 def editar_agenda(request, id):
     agendamento = get_object_or_404(Agenda, pk=id)
     profissionais = Usuarios.objects.all()  # <-- você já pegou aqui, mas não usou no render
+    convenios = Convenios.objects.all()    
 
     if request.method == 'POST':
         form = AgendaForm(request.POST, instance=agendamento)
@@ -234,10 +310,14 @@ def editar_agenda(request, id):
     else:
         form = AgendaForm(instance=agendamento)
 
-    return render(request, 'editar_agenda.html', {
+    context = {
         'form': form,
-        'profissionais': profissionais  # <-- ESSENCIAL!
-    })
+        'agenda': agendamento,
+        'convenios': convenios,
+        'profissionais': profissionais,
+    }    
+
+    return render(request, 'editar_agenda.html', context)
 #*******************************************************************************
 def excluir_agenda(request, id):
     agendamento = get_object_or_404(Agenda, pk=id)

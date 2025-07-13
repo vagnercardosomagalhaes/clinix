@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-4%_k=9o!mb9@cq@8i3+jbrfx5@h#vgj1y21isb=r09bdu2zog0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*'] # *******************************************************
 
@@ -82,21 +82,22 @@ WSGI_APPLICATION = 'consultoriodigital.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # ************************************************************** USANDO MYSQL
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.mysql',
-#        'NAME':'cdigital',
-#        'USER':'Usuario_Root',
-#        'PASSWORD':'Tr18365518AaBbCcDdEe#!',
-#        'HOST':'localhost',
-#        'PORT':'3308',
-#    }
-#}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME':'cdigital',
+        'USER':'Usuario_Root',
+        'PASSWORD':'Tr18365518AaBbCcDdEe#!',
+        'HOST':'localhost',
+        'PORT':'3308',
+    }
+}
 # **************************************************************
 # ************************************************************** USANDO POSTGRESQL COM HEROKU
-DATABASES = {
-        'default': dj_database_url.config()
-}    
+#DATABASES = {
+#        'default': dj_database_url.config(default='sqlite:///db.sqlite3', 
+#        conn_max_age=600)
+#}    
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

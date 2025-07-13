@@ -113,7 +113,24 @@
                     <input type="text" id="cliente_autocomplete" name="cliente_nome" class="form-control" placeholder="Digite o nome do cliente" autocomplete="off" />
                     <input type="hidden" id="id_cliente" name="cliente" />
                 </div>
-
+                <!-- Convenio -->
+                 <div class="mb-3">
+                    <label for="id_convenio" class="form-label">Convênio</label>
+                    <select id="id_convenio" name="convenio" class="form-control">
+                        <option value="">--- Selecione um convênio ---</option>
+                        {% for convenio in convenios %}
+                            <option value="{{ convenio.id }}"
+                                {% if form.convenio.value|stringformat:"s" == convenio.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ convenio.nome }}
+                            </option>
+                        {% empty %}
+                            <option value="">Nenhum convênio cadastrado</option>
+                        {% endfor %}
+                    </select>
+                </div>                
                 <!-- Telefone -->
                 <div class="mb-3">
                     <label for="id_telefone" class="form-label">Telefone</label>

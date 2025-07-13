@@ -1,0 +1,61 @@
+{% load bootstrap4 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convênios</title>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'estilo.css' %}">
+</head>
+<body>
+    <div class="container">
+        {% bootstrap_messages %}
+        <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
+        
+        <h1 class="mb-4">Cadastro de Convênios</h1>
+        
+        <form method="post" action="{% url 'convenios' %}" class="form" role="form" autocomplete="off">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">
+                    {% if editando %}Atualizar Convênio{% else %}Salvar Convênio{% endif %}
+                </button>
+            </div>
+        </form>
+
+        <hr>
+
+        <h2 class="mt-5">Convênios Cadastrados</h2>
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th style="width: 150px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for convenio in convenios_cadastrados %}
+                <tr>
+                    <td>{{ convenio.nomeconvenio }}</td>
+                    <td>
+                        <!--
+                        <a href="{% url 'editar_convenio' convenio.id %}" class="btn btn-sm btn-warning">Editar</a>
+                        -->
+                        <a href="{% url 'excluir_convenio' convenio.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este convênio?');">Excluir</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">Nenhum convênio cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        &ensp; 
+        <a href="{% url 'index' %}" class="btn btn-primary ms-2">Retornar ao Início</a>
+    </div>
+</body>
+</html>

@@ -12,7 +12,22 @@
   <div class="container">
     {% bootstrap_messages %}
     <img src="{% static 'images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
-    <h1 style="color: blue;">Agendamentos do dia {{ data_hoje|date:"d/m/Y" }}</h1>
+
+    <!-- Cabeçalho com Título e Seletor de Profissional -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 style="color: blue;">Agendamentos do dia {{ data_hoje|date:"d/m/Y" }}</h1>
+      
+      <form method="get">
+        <select name="profissional" style="width: 250px;" class="form-select" onchange="this.form.submit()">
+          <option value="">Todos os profissionais</option>
+          {% for profissional in profissionais %}
+              <option value="{{ profissional.id }}" {% if request.GET.profissional == profissional.id|stringformat:"s" %}selected{% endif %}>
+                  {{ profissional.nome }}
+              </option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
 
     {% if atendimentos %}
         <table class="table table-bordered">
@@ -34,7 +49,7 @@
                       <a href="{% url 'editar_atendimento' agendamento.id %}" class="btn btn-warning btn-sm">
                           Editar
                       </a>
-                  </td>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -42,6 +57,7 @@
     {% else %}
         <p style="color: crimson;">Nenhum agendamento para hoje.</p>
     {% endif %}
+    
     <a href="{% url 'index' %}" class="btn btn-primary mt-3">Retornar ao Início</a>
   </div>  
 {% bootstrap_javascript %}    

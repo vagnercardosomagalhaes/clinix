@@ -1,11 +1,25 @@
 from django import forms
-from .models import Clientes, Usuarios
+from .models import Clientes, Usuarios, Convenios
 from .models import Agenda, Atendimentos 
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 
 
 
+class Conveniosform(forms.ModelForm):
+    class Meta:
+        model = Convenios 
+        exclude = ['slug']
+        widgets = {
+            'nomeconvenio': forms.TextInput(attrs={'placeholder': 'Nome do convênio'}),
+        }  
+         
+    def clean_nomeconvenio(self):
+        nome = self.cleaned_data['nomeconvenio'].strip().lower()
+        if Convenios.objects.filter(nomeconvenio__iexact=nome).exists():
+            raise forms.ValidationError("Este convênio já está cadastrado.")
+        return nome
+    
 class Clientesform(forms.ModelForm):
     class Meta:
         model = Clientes
@@ -36,7 +50,7 @@ class UsuariosForm(forms.ModelForm):
     )
     class Meta:
         model = Usuarios
-        fields = ['nome', 'email', 'login', 'senha', 'senha2', 'is_admin']
+        fields = ['nome', 'email', 'login', 'senha', 'senha2', 'is_admin', 'is_medico']
         widgets = {
             'senha': forms.PasswordInput(attrs={'class': 'form-control'}),
             'login': forms.TextInput(attrs={'class': 'form-control'}),
@@ -85,7 +99,7 @@ class LoginForm(forms.Form):
 class AgendaForm(forms.ModelForm):
     class Meta:
         model = Agenda
-        fields = ['profissional','cliente', 'data', 'hora_inicio', 'hora_fim', 'descricao']
+        fields = ['profissional','cliente', 'data', 'hora_inicio', 'hora_fim', 'descricao', 'convenio']
         widgets = {
             'data': forms.DateInput(attrs={
                 'class': 'form-control',

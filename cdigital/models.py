@@ -46,6 +46,7 @@ class Usuarios(models.Model):
     login = models.CharField('Login', max_length=100, unique=True, null=True, blank=True)
     senha = models.CharField('Senha', max_length=128)
     is_admin = models.BooleanField('É Administrador?', default=False)
+    is_medico = models.BooleanField('É Médico',default=False)
     slug = models.SlugField(unique=True, blank=True)
 
     def __str__(self):
@@ -60,10 +61,23 @@ class Usuarios(models.Model):
 
         super().save(*args, **kwargs)
 
+class Convenios(Base):
+    nomeconvenio = models.CharField('Nome', max_length=100, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def __str__(self):
+        return self.nomeconvenio
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nomeconvenio)
+        super().save(*args, **kwargs)
+
 class Agenda(models.Model):
     criado = models.DateTimeField(default=timezone.now)
     profissional = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
     cliente = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='agendas')
+    convenio = models.ForeignKey(Convenios, null=True, blank=True, on_delete=models.SET_NULL)
     telefone = models.CharField('Telefone', max_length=15, blank=True, null=True)    
     data = models.DateField('Data')
     hora_inicio = models.TimeField('Hora de Início')
@@ -72,13 +86,14 @@ class Agenda(models.Model):
 
     def __str__(self):
         return f"{self.cliente.nome} - {self.cliente.telefone}- {self.data} {self.hora_inicio} - {self.hora_fim}"
-    
+
 class Atendimentos(Base):
     cliente = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='atendimentos')
     data = models.DateField('Data')
     hora_inicio = models.TimeField('Hora de Início')
     hora_fim = models.TimeField('Hora de Fim')
     descricao = models.TextField('Descrição', blank=True, null=True)
+    profissional = models.ForeignKey(Usuarios, on_delete=models.CASCADE, related_name='agendamentos')
 
     def __str__(self):
         return f"{self.cliente.nome} - {self.data} {self.hora_inicio} - {self.hora_fim}"

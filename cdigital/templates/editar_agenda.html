@@ -72,6 +72,21 @@
         {% endfor %}
     </select>
 </div>
+    <label for="id_cliente" class="form-label">Convênio</label>
+    <select id="id_convenio" name="convenio" class="form-control">
+        <option value="">--- Selecione um convênio ---</option>
+        {% for convenio in convenios %}
+            <option value="{{ convenio.id }}"
+                {% if form.instance.convenio and form.instance.convenio.id == convenio.id %}
+                    selected
+                {% endif %}
+            >
+                {{ convenio.nomeconvenio }}
+            </option>
+        {% empty %}
+            <option value="">Nenhum convênio cadastrado</option>
+        {% endfor %}
+    </select>
 
     <div class="mb-3">
         <label for="id_telefone" class="form-label">Telefone</label>

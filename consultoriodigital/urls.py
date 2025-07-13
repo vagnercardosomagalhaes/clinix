@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from cdigital import views  # Import views from the cdigital app
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('cdigital.urls')),
+    path('logout/', views.logout_view, name='logout'),
 ]
