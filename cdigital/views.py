@@ -68,11 +68,12 @@ def convenios(request):
         context = {
             'form': form,
         }
+
     convenios_cadastrados = Convenios.objects.all().order_by('nomeconvenio')
 
     return render(request, 'convenios.html', {
         'form': form,
-        'convenios_cadastrados': convenios_cadastrados
+        'convenios_cadastrados': convenios_cadastrados,
     })                                 
 #*******************************************************************************
 def editar_convenio(request, id):

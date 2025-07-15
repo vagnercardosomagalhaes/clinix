@@ -15,7 +15,7 @@ class Conveniosform(forms.ModelForm):
         }  
          
     def clean_nomeconvenio(self):
-        nome = self.cleaned_data['nomeconvenio'].strip().lower()
+        nome = self.cleaned_data['nomeconvenio'].strip()
         if Convenios.objects.filter(nomeconvenio__iexact=nome).exists():
             raise forms.ValidationError("Este convênio já está cadastrado.")
         return nome
