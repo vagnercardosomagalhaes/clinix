@@ -214,6 +214,29 @@ def lista_clientes(request):
         'clientes': clientes,
         'busca': busca,
     })
+#******************************************************************************
+def atendimentos_do_dia(request):
+    data_hoje = date.today()
+    profissional_id = request.GET.get('profissional')  # captura o profissional do filtro (GET)
+    profissionais = Usuarios.objects.filter(is_medico=True)
+
+    # Começa com todos os agendamentos do dia
+    atendimentos = Agenda.objects.filter(data=data_hoje)
+
+    # Se selecionou um profissional, filtra por ele
+    if profissional_id:
+        atendimentos = atendimentos.filter(profissional_id=profissional_id)
+
+    # Ordena por hora de início
+    atendimentos = atendimentos.order_by('hora_inicio')
+
+    context = {
+        'data_hoje': data_hoje,
+        'atendimentos': atendimentos,
+        'profissionais': profissionais,
+    }
+
+    return render(request, 'atendimentos.html', context)
 
 #*******************************************************************************
     
@@ -234,25 +257,36 @@ def atendimentos(request):
     })
 
 #*******************************************************************************
-def editar_atendimento(request, id):
-    agendamento = get_object_or_404(Atendimentos, pk=id)
+def editar_atendimento(request, agenda_id):
+    agendamento = get_object_or_404(Agenda, id=agenda_id)
     profissionais = Usuarios.objects.filter(is_medico=True)
 
     if request.method == 'POST':
         descricao = request.POST.get('descricao')
         profissional_id = request.POST.get('profissional')
 
+        # Atualiza o agendamento existente
         agendamento.descricao = descricao
         agendamento.profissional_id = profissional_id
         agendamento.save()
 
-        messages.success(request, 'Atendimento atualizado com sucesso!')
+        # Cria um registro de atendimento com base no agendamento
+        Atendimentos.objects.create(
+            cliente=agendamento.cliente,
+            data=agendamento.data,
+            hora_inicio=agendamento.hora_inicio,
+            hora_fim=agendamento.hora_fim,
+            descricao=descricao,
+            profissional_id=profissional_id
+        )
+
+        messages.success(request, 'Atendimento registrado com sucesso!')
         return redirect('atendimentos')
 
     # Buscar atendimentos anteriores do mesmo cliente
     atendimentos_anteriores = Atendimentos.objects.filter(
         cliente=agendamento.cliente
-    ).exclude(pk=agendamento.pk).order_by('-data')
+    ).order_by('-data','hora_inicio')
 
     return render(request, 'editar_atendimento.html', {
         'agendamento': agendamento,

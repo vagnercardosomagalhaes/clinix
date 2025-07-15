@@ -18,14 +18,19 @@
       <h1 style="color: blue;">Agendamentos do dia {{ data_hoje|date:"d/m/Y" }}</h1>
       
       <form method="get">
-        <select name="profissional" style="width: 250px;" class="form-select" onchange="this.form.submit()">
-          <option value="">Todos os profissionais</option>
-          {% for profissional in profissionais %}
-              <option value="{{ profissional.id }}" {% if request.GET.profissional == profissional.id|stringformat:"s" %}selected{% endif %}>
-                  {{ profissional.nome }}
-              </option>
-          {% endfor %}
-        </select>
+          <div class="d-flex">
+              <select name="profissional" class="form-select" onchange="this.form.submit()" style="width: 250px;">
+                  <option value="">Todos os profissionais</option>
+                  {% for profissional in profissionais %}
+                      <option value="{{ profissional.id }}" {% if request.GET.profissional == profissional.id|stringformat:"s" %}selected{% endif %}>
+                          {{ profissional.nome }}
+                      </option>
+                  {% endfor %}
+              </select>
+              {% if request.GET.profissional %}
+                  <a href="{% url 'atendimentos_do_dia' %}" class="btn btn-primary">Limpar</a>
+              {% endif %}
+          </div>
       </form>
     </div>
 
