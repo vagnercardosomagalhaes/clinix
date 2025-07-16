@@ -56,7 +56,8 @@ class Usuarios(models.Model):
         if not self.slug:
             self.slug = slugify(self.nome)
 
-        if not self.senha.startswith('pbkdf2_'):
+        # Só criptografa se ainda não estiver criptografada
+        if self.senha and not self.senha.startswith('pbkdf2_'):
             self.senha = make_password(self.senha)
 
         super().save(*args, **kwargs)

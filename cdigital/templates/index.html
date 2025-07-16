@@ -111,20 +111,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-          document.addEventListener('DOMContentLoaded', function () {
-          var login_ok = {{ login_ok|yesno:"true,false"|lower }}; // This outputs true/false as JS boolean
-          
-          var loginModalEl = document.getElementById('loginModal');
-          if (loginModalEl) {
-            var loginModal = new bootstrap.Modal(loginModalEl);
-            
-            if (!login_ok) {
-              loginModal.show();
-            } else {
-              loginModal.hide(); // por segurança, caso ainda esteja visível
-            }
+      document.addEventListener('DOMContentLoaded', function () {
+        var login_ok = {{ login_ok|yesno:"true,false" | safe }};  
+
+        var loginModalEl = document.getElementById('loginModal');
+        if (loginModalEl) {
+          var loginModal = new bootstrap.Modal(loginModalEl);
+
+          if (!login_ok) {
+            loginModal.show();
+          } else {
+            loginModal.hide();
           }
-        });
+        }
+      });
     </script>
 
 </body>

@@ -14,8 +14,9 @@ from django import forms
 from django.db.models import Q
 from django.contrib.auth import logout
 from django.db.utils import IntegrityError
+from django.views.decorators.cache import never_cache
 
-
+@never_cache
 def index(request):
     login_ok = False
 
@@ -32,7 +33,7 @@ def index(request):
         if login == 'adm' and senha == 'adm':
             request.session['usuario_id'] = 0  # ID fictício
             request.session['usuario_nome'] = 'Administrador'
-            request.session['usuario_admin'] = True
+            request.session['usuario_is_admin'] = True
             login_ok = True
         else:
             # Autenticação normal com base de dados
@@ -41,33 +42,18 @@ def index(request):
                 if check_password(senha, usuario.senha):
                     request.session['usuario_id'] = usuario.id
                     request.session['usuario_nome'] = usuario.nome
-                    request.session['usuario_admin'] = usuario.admin  # ou o campo booleano correto
+                    request.session['usuario_is_admin'] = usuario.is_admin  # ou o campo booleano correto
                     login_ok = True
                 else:
                     messages.error(request, 'Senha incorreta.')
             except Usuarios.DoesNotExist:
-                messages.error(request, 'Usuário não encontrado.')    
-        
-    else:  
-        
-        if request.session.get('usuario_id') is not None:
-            login_ok = True
+                messages.error(request, 'Usuário não encontrado.')  
 
+    elif request.session.get('usuario_id') is not None:
+        login_ok = True
+    
     return render(request, 'index.html', {'login_ok': login_ok})        
-                                                                    #try:
-                                                                    #    usuario = Usuarios.objects.get(login__iexact=login)
-                                                                    #    if check_password(senha, usuario.senha):
-                                                                    #        request.session['usuario_id'] = usuario.id
-                                                                    #        request.session['usuario_nome'] = usuario.nome
-                                                                    #        request.session['usuario_admin'] = usuario.is_admin
-                                                                    #        login_ok = True
-                                                                    #    else:
-                                                                    #        messages.error(request, 'Senha incorreta.')
-                                                                    #except Usuarios.DoesNotExist:
-                                                                    #    messages.error(request, 'Usuário não encontrado.')
-
-                                                                #elif 'usuario_id' in request.session:
-                                                                #    login_ok = True    
+                                                                    
 #*******************************************************************************
 
 def logout_view(request):
@@ -128,6 +114,7 @@ def excluir_convenio(request, id):
     convenio.delete()
     messages.success(request, 'Convênio excluído com sucesso!')
     return redirect('convenios')
+
 #*******************************************************************************
 def clientes(request):
     if str(request.method) == 'POST':
@@ -165,7 +152,7 @@ def login_view(request):
             usuario = Usuarios.objects.get(login=login, senha=senha)
             request.session['usuario_id'] = usuario.id
             request.session['usuario_nome'] = usuario.nome
-            request.session['usuario_admin'] = usuario.administrador
+            request.session['usuario_is_admin'] = usuario.administrador
             return redirect('index')  # ou a página principal do sistema
         except Usuarios.DoesNotExist:
             return render(request, 'index.html', {'erro': 'Login ou senha inválidos'})
@@ -385,6 +372,7 @@ def excluir_agenda(request, id):
         messages.success(request, 'Agendamento excluído com sucesso!')
         return redirect('agenda')
     return render(request, 'confirmar_exclusao.html', {'agendamento': agendamento})
+
 #*******************************************************************************
 
 def usuarios(request):
@@ -393,9 +381,8 @@ def usuarios(request):
         if form.is_valid():
             usuario = form.save(commit=False)
             # criptografa a senha antes de salvar
-            usuario.senha = make_password(usuario.senha)
-            usuario.save()
-            
+            #usuario.senha = make_password(usuario.senha)
+            usuario.save()            
             messages.success(request, 'Usuário cadastrado com sucesso!')
             return redirect('usuarios')
         else:
@@ -410,7 +397,7 @@ def usuarios(request):
         'usuarios_lista': usuarios_lista,
     })
 
-
+#*************************************************************************
 def editar_usuario(request, pk):
     usuario = get_object_or_404(Usuarios, pk=pk)
 
@@ -430,7 +417,7 @@ def editar_usuario(request, pk):
         form = UsuariosForm(instance=usuario)
 
     return render(request, 'editar_usuario.html', {'form': form})
-
+#****************************************************************************
 def excluir_usuario(request, pk):
     usuario = get_object_or_404(Usuarios, pk=pk)
     usuario.delete()
