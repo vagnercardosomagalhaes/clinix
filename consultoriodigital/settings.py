@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
+from utils.database_selector import get_local_database_name
 
 
 
@@ -82,6 +83,10 @@ WSGI_APPLICATION = 'consultoriodigital.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # ************************************************************** USANDO MYSQL
+
+
+cliente_db = get_local_database_name()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -90,8 +95,20 @@ DATABASES = {
         'PASSWORD':'Tr18365518AaBbCcDdEe#!',
         'HOST':'localhost',
         'PORT':'3308',
+    },
+
+    cliente_db: {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': cliente_db,
+        'USER': 'Usuario_Root',
+        'PASSWORD': 'Tr18365518AaBbCcDdEe#!',
+        'HOST': 'localhost',
+        'PORT': '3308',
     }
 }
+
+DATABASE_ROUTERS = ['cdigital.db_router.MultiTenantRouter']
+
 # **************************************************************
 # ************************************************************** USANDO POSTGRESQL COM HEROKU
 #DATABASES = {

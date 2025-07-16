@@ -1,0 +1,9 @@
+Passo a passo para criaçãodo banco de dados do usuario:
+
+1 - Criar a pasta c:\cdigital
+2 - Dentro da pasta criar o arquivo bd.ini com o conteúdo:
+    [database]
+    nome=cdigital[0007] -- ordem de bancos criados
+
+3 - No terminal, dentro do ambinete virtual, executar o srcript de criação do banco:
+        python setup_banco.py
