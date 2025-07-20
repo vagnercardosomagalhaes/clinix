@@ -23,6 +23,7 @@ urlpatterns = [
     path('atendimentos/', views.atendimentos_do_dia, name='atendimentos_do_dia'),
     path('atendimentos/', views.atendimentos, name='atendimentos'),
     path('atendimento/editar/<int:agenda_id>/', views.editar_atendimento, name='editar_atendimento'),
+    path('atendimento/excluir/<int:atendimento_id>/', views.excluir_atendimento, name='excluir_atendimento'),
 
     
     path('usuarios/', views.usuarios, name='usuarios'),    

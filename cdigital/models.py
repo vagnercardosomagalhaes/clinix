@@ -100,6 +100,7 @@ class Agenda(models.Model):
     hora_inicio = models.TimeField('Hora de Início')
     hora_fim = models.TimeField('Hora de Fim')
     descricao = models.TextField('Descrição', blank=True, null=True)
+    finalizado = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.cliente.nome} - {self.cliente.telefone}- {self.data} {self.hora_inicio} - {self.hora_fim}"

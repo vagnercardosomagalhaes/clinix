@@ -30,7 +30,7 @@ from django.db.models import Sum
 from .models import ContaPagar, Banco
 from django.db.models.functions import TruncDate
 from django.utils.dateparse import parse_date
-from .models import ContaReceber
+from .models import ContaReceber, Convenios
 from .models import EntradasMonetarias, Receita
 from .models import SaidasMonetarias
 from .models import Receita, Convenios
@@ -369,13 +369,28 @@ def editar_atendimento(request, agenda_id):
     if request.method == 'POST':
         descricao = request.POST.get('descricao')
         profissional_id = request.POST.get('profissional')
+        finalizar = request.POST.get('finalizado')  # corresponde ao name do checkbox
+        convenio = agendamento.convenio  # já está no agendamento
+
+        # Se finalizar estiver marcado, cria ContaReceber
+        if finalizar:
+            if convenio:
+                ContaReceber.objects.create(
+                    vencimento=agendamento.data,
+                    cliente=convenio.nomeconvenio,
+                    receita=Receita.objects.filter(codigo='01').first(),  # pode preencher com uma receita padrão se quiser
+                    descricao=f'Consulta: {agendamento.cliente.nome}',
+                    valor=convenio.valor_repasse,
+                    conta_destino=None  # preencher se desejar
+                )
 
         # Atualiza o agendamento existente
         agendamento.descricao = descricao
         agendamento.profissional_id = profissional_id
+        agendamento.finalizado = bool(finalizar)
         agendamento.save()
 
-        # Cria um registro de atendimento com base no agendamento
+        # Cria um registro de atendimento
         Atendimentos.objects.create(
             cliente=agendamento.cliente,
             data=agendamento.data,
@@ -385,13 +400,16 @@ def editar_atendimento(request, agenda_id):
             profissional_id=profissional_id
         )
 
-        messages.success(request, 'Atendimento registrado com sucesso!')
+        if finalizar:
+            messages.success(request, 'Atendimento finalizado com sucesso.')
+        else:
+            messages.success(request, 'Atendimento registrado com sucesso.')
         return redirect('atendimentos')
 
-    # Buscar atendimentos anteriores do mesmo cliente
+    # GET – carregar tela
     atendimentos_anteriores = Atendimentos.objects.filter(
         cliente=agendamento.cliente
-    ).order_by('-data','hora_inicio')
+    ).order_by('-data', 'hora_inicio')
 
     return render(request, 'editar_atendimento.html', {
         'agendamento': agendamento,
@@ -399,6 +417,13 @@ def editar_atendimento(request, agenda_id):
         'atendimentos_anteriores': atendimentos_anteriores
     })
 #*******************************************************************************
+def excluir_atendimento(request, atendimento_id):
+    atendimento = get_object_or_404(Atendimentos, id=atendimento_id)
+    atendimento.delete()
+    messages.success(request, 'Atendimento excluído com sucesso.')
+    return redirect(request.META.get('HTTP_REFERER', 'atendimentos'))
+
+#********************************************************************************
 def agenda(request):
     form = AgendaForm()
     data_filtro = request.GET.get('data')  # captura a data enviada no filtro

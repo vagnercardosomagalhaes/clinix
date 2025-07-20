@@ -71,7 +71,12 @@
                         <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalDescricao{{ atendimento.id }}">
                             Consultar
                         </button>
-
+                        <form action="{% url 'excluir_atendimento' atendimento.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Deseja realmente excluir este atendimento?')">
+                                Excluir
+                            </button>
+                        </form> 
                         <!-- Modal -->
                         <div class="modal fade" id="modalDescricao{{ atendimento.id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ atendimento.id }}" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable" role="document">

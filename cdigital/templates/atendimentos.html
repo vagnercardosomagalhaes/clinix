@@ -46,7 +46,7 @@
             </thead>
             <tbody>
                 {% for agendamento in atendimentos %}
-                <tr>
+                <tr {% if agendamento.finalizado %}style="background-color: lightcoral;"{% endif %}>
                     <td>{{ agendamento.hora_inicio|time:"H:i" }} - {{ agendamento.hora_fim|time:"H:i" }}</td>
                     <td>{{ agendamento.cliente.nome }}</td>                    
                     <td>{{ agendamento.descricao }}</td>
