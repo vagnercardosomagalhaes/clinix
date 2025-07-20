@@ -16,7 +16,7 @@
         
         <h1 class="mb-4">Cadastro de Convênios</h1>
         
-        <form method="post" action="{% url 'convenios' %}" class="form" role="form" autocomplete="off">
+        <form method="post" action="{% if editando %}{% url 'editar_convenio' convenio_id %}{% else %}{% url 'convenios' %}{% endif %}" class="form" role="form" autocomplete="off">
             {% csrf_token %}
             {% bootstrap_form form %}
             <div class="form-group mt-3">
@@ -41,9 +41,9 @@
                 <tr>
                     <td>{{ convenio.nomeconvenio }}</td>
                     <td>
-                        <!--
+                        
                         <a href="{% url 'editar_convenio' convenio.id %}" class="btn btn-sm btn-warning">Editar</a>
-                        -->
+                        
                         <a href="{% url 'excluir_convenio' convenio.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este convênio?');">Excluir</a>
                     </td>
                 </tr>

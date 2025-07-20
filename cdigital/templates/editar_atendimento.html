@@ -11,7 +11,7 @@
 <div class="container">
     <h1>Registro de Atendimento</h1>
 
-    <form method="post">
+    <form method="post" id="form-atendimento">
         {% csrf_token %}
 
         <div class="form-group">
@@ -25,77 +25,98 @@
         </div>
 
         <div class="form-group">
-        <label>Descrição</label>
-        <textarea name="descricao" class="form-control" rows="5" placeholder="Digite a descrição do atendimento...">{{ agendamento.descricao }}</textarea>
-    </div>
+            <label>Descrição</label>
+            <textarea name="descricao" class="form-control" rows="5" placeholder="Digite a descrição do atendimento...">{{ agendamento.descricao }}</textarea>
+        </div>
 
-    <div class="form-group">
-        <label>Profissional responsável</label>
-        <select name="profissional" class="form-control">
-            {% for profissional in profissionais %}
-                <option value="{{ profissional.id }}" {% if agendamento.profissional.id == profissional.id %}selected{% endif %}>
-                    {{ profissional.nome }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
+        <div class="form-group">
+            <label>Profissional responsável</label>
+            <select name="profissional" class="form-control">
+                {% for profissional in profissionais %}
+                    <option value="{{ profissional.id }}" {% if agendamento.profissional.id == profissional.id %}selected{% endif %}>
+                        {{ profissional.nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
+        <!-- ✅ Checkbox Finalizar Atendimento -->
+        <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="finalizar" name="finalizado" {% if agendamento.finalizado %}checked{% endif %}>
+            <label class="form-check-label" for="finalizar" style="color:red;">Finalizar atendimento</label>
+        </div>
 
-        <button type="submit" class="btn btn-success">Salvar Atendimento</button>
-        <a href="{% url 'atendimentos' %}" class="btn btn-secondary">Retornar</a>
+        <button type="submit" class="btn btn-success mt-3">Salvar Atendimento</button>
+        <a href="{% url 'atendimentos' %}" class="btn btn-secondary mt-3">Retornar</a>
     </form>
+
     <hr>
-<h3>Atendimentos anteriores de {{ agendamento.cliente.nome }}</h3>
+    <h3>Atendimentos anteriores de {{ agendamento.cliente.nome }}</h3>
 
-{% if atendimentos_anteriores %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Data</th>
-                <th>Descrição</th>
-                <th>Ação</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for atendimento in atendimentos_anteriores %}
-            <tr>
-                <td>{{ atendimento.data|date:"d/m/Y" }}</td>
-                <td>{{ atendimento.descricao|truncatechars:50 }}</td>
-                <td>
-                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalDescricao{{ atendimento.id }}">
-                        Consultar
-                    </button>
+    {% if atendimentos_anteriores %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for atendimento in atendimentos_anteriores %}
+                <tr>
+                    <td>{{ atendimento.data|date:"d/m/Y" }}</td>
+                    <td>{{ atendimento.descricao|truncatechars:50 }}</td>
+                    <td>
+                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalDescricao{{ atendimento.id }}">
+                            Consultar
+                        </button>
 
-                    <!-- Modal -->
-                    <div class="modal fade" id="modalDescricao{{ atendimento.id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ atendimento.id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-scrollable" role="document">
-                        <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modalLabel{{ atendimento.id }}">Descrição do Atendimento - {{ atendimento.data|date:"d/m/Y" }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                            <span aria-hidden="true">&times;</span>
-                            </button>
+                        <!-- Modal -->
+                        <div class="modal fade" id="modalDescricao{{ atendimento.id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ atendimento.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalLabel{{ atendimento.id }}">Descrição do Atendimento - {{ atendimento.data|date:"d/m/Y" }}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        {{ atendimento.descricao|linebreaksbr }}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="modal-body">
-                            {{ atendimento.descricao|linebreaksbr }}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
-{% else %}
-    <p>Não há atendimentos anteriores para este cliente.</p>
-{% endif %}
-<a href="{% url 'index' %}" class="btn btn-primary mt-3">Retornar ao Início</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Não há atendimentos anteriores para este cliente.</p>
+    {% endif %}
+
+    <a href="{% url 'index' %}" class="btn btn-primary mt-3">Retornar ao Início</a>
 </div>
+
 {% bootstrap_javascript jquery='full' %}
+
+<!-- ✅ Script para controlar finalização -->
+<script>
+document.getElementById('form-atendimento').addEventListener('submit', function(e) {
+    const checkbox = document.getElementById('finalizar');
+    if (!checkbox.checked) {
+        e.preventDefault();
+        if (confirm("Deseja finalizar o atendimento agora?")) {
+            checkbox.checked = true;
+            this.submit();
+        }
+    }
+});
+</script>
 </body>
 </html>

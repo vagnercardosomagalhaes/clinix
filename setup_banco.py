@@ -3,7 +3,9 @@ import django
 import pymysql
 import configparser
 import sys
+from django.conf import settings
 from django.core.management import call_command
+
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,6 +39,29 @@ except Exception as e:
 # Inicializa o Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "consultoriodigital.settings")  # ***********************************
 django.setup()
+
+
+# Adiciona dinamicamente o banco no settings
+from django.conf import settings
+from copy import deepcopy
+
+# Clona a configuração do banco 'default'
+banco_config = deepcopy(settings.DATABASES['default'])
+banco_config['NAME'] = nome_banco
+
+# Registra no settings com nome do banco lido
+settings.DATABASES[nome_banco] = banco_config
+
+#settings.DATABASES[nome_banco] = {
+#    'ENGINE': 'django.db.backends.mysql',
+#    'NAME': nome_banco,
+#    'USER': MYSQL_USER,
+#    'PASSWORD': MYSQL_PASSWORD,
+#    'HOST': MYSQL_HOST,
+#    'PORT': str(MYSQL_PORT),
+#    'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
+#    'TIME_ZONE': settings.TIME_ZONE,  # ✅ Adiciona a configuração de fuso
+#}
 
 # Roda as migrations para esse banco
 print(f" Rodando migrations no banco `{nome_banco}`...")

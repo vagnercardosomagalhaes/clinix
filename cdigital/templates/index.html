@@ -71,15 +71,45 @@
                   <a class="dropdown-item" href="{% url 'convenios' %}">Convênios</a>                  
                 </div>
               </li>
+              &nbsp;
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'agenda' %}">Agendamentos</a>
               </li>
+              &nbsp;
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'atendimentos' %}">Atendimentos</a>
               </li>
+              &nbsp;
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'usuarios' %}">Controle de usuários</a>
               </li>
+              &nbsp;
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Financeiro
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{% url 'despesas' %}">Códigos de despesas</a>
+                  <a class="dropdown-item" href="{% url 'receitas' %}">Códigos de receitas</a>
+                  <a class="dropdown-item" href="{% url 'bancos' %}">Contas monetárias</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="{% url 'contas_pagar' %}">Contas a pagar</a>
+                  <a class="dropdown-item" href="{% url 'contas_receber' %}">Contas a Receber</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="{% url 'saidas_monetarias' %}">Saídas monetárias</a>
+                  <a class="dropdown-item" href="{% url 'entradas_monetarias' %}">Entradas monetárias</a>                  
+                </div>
+              </li> 
+               &nbsp; 
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Ferramentas
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" onclick="atualizarBanco('{{ csrf_token }}')">Manutenção do banco de dados</a>                                    
+                </div>
+              </li>
+              &nbsp;
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'logout' %}">Sair</a>
               </li>
@@ -126,6 +156,6 @@
         }
       });
     </script>
-
+    <script src="{% static 'js/atualizar_banco.js' %}"></script>
 </body>
 </html>

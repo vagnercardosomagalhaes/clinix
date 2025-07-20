@@ -4,6 +4,12 @@ Passo a passo para criaçãodo banco de dados do usuario:
 2 - Dentro da pasta criar o arquivo bd.ini com o conteúdo:
     [database]
     nome=cdigital[0007] -- ordem de bancos criados
+3 - Criar o schema cdigital[0007] no workbench
 
+4 - rodar o py manage.py makemigrations
+    py manage.py migrate   
+
+
+************************
 3 - No terminal, dentro do ambinete virtual, executar o srcript de criação do banco:
         python setup_banco.py

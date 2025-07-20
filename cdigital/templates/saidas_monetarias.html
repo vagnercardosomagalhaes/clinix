@@ -1,0 +1,157 @@
+{% load bootstrap4 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Saídas Monetárias</title>
+    {% bootstrap_css %}
+</head>
+<body>
+<div class="container mt-4">
+    <h3>Cadastro de Saídas Monetárias</h3>
+
+    <form method="post" action="{% url 'saidas_monetarias' %}" class="mb-4">
+        {% csrf_token %}
+        <div class="form-group">
+            <div class="col">
+                <label for="vencimento">Vencimento:</label>
+                <input type="date" name="vencimento" id="vencimento" class="form-control" style="width: 150px;" required>
+            </div>
+
+            <div class="col">
+                <label for="credor">Credor:</label>
+                <input list="lista_credores" name="credor" id="credor" class="form-control" placeholder="Nome do credor" required>
+                <datalist id="lista_credores">
+                    {% for c in credores %}
+                        <option value="{{ c }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+
+            <div class="col">
+                <label for="despesa">Tipo de Despesa:</label>
+                <select name="despesa" id="despesa" class="form-control" required>
+                    <option value="">Selecione a despesa</option>
+                    {% for d in despesas %}
+                        <option value="{{ d.id }}">{{ d.codigo }} - {{ d.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
+                <label for="descricao">Descrição:</label>
+                <input type="text" name="descricao" id="descricao" class="form-control" placeholder="Descrição">
+            </div>
+            <div class="col">
+                <label for="conta_origem">Conta Origem:</label>
+                <select name="conta_origem" id="conta_origem" class="form-control" required>
+                    <option value="">Selecione a conta origem</option>
+                    {% for banco in bancos %}
+                        <option value="{{ banco.id }}">{{ banco.simbolo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
+                <label for="valor">Valor R$:</label>
+                <input type="number" name="valor" id="valor" step="0.01" class="form-control" placeholder="0,00" style="width: 150px;" required>
+            </div>
+            &nbsp;
+            <div class="col">
+                <button class="btn btn-success" id="botao-gravar">Gravar</button>
+                <a href="{% url 'index' %}" class="btn btn-warning">Retornar</a>
+            </div>
+        </div>
+    </form>
+
+    <form method="get" class="form-inline mb-3">
+        <label for="data_de" class="mr-2">Data de:</label>
+        <input type="date" name="data_de" class="form-control mr-2" value="{{ data_de }}">
+        <label for="data_ate" class="mr-2">Até:</label>
+        <input type="date" name="data_ate" class="form-control mr-2" value="{{ data_ate }}">
+        <button class="btn btn-primary">Filtrar</button>
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Data</th>
+                <th>Credor</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Conta Origem</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for saida in saidas %}
+            <tr>
+                <td>{{ saida.vencimento|date:"d/m/Y" }}</td>
+                <td>{{ saida.credor }}</td>
+                <td>{{ saida.descricao }}</td>
+                <td>R$ {{ saida.valor|floatformat:2 }}</td>
+                <td>
+                    {% if saida.conta_origem %}
+                        {{ saida.conta_origem.simbolo }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                   <!-- <a href="#" class="btn btn-sm btn-success">Pagar</a> -->
+                    <a href="#" class="btn btn-sm btn-primary editar-saida"
+                        data-id="{{ saida.id }}"
+                        data-vencimento="{{ saida.vencimento|date:'Y-m-d' }}"
+                        data-credor="{{ saida.credor }}"
+                        data-despesa="{{ saida.despesa.id }}"
+                        data-descricao="{{ saida.descricao }}"
+                        data-valor="{{ saida.valor|stringformat:'.2f' }}"
+                        data-conta_origem="{% if saida.conta_origem %}{{ saida.conta_origem.id }}{% else %}{% endif %}">Editar</a>
+                    <a href="#" class="btn btn-sm btn-danger">Excluir</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">Nenhuma saída encontrada.</td></tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4"><strong>Total do período:</strong></td>
+                <td colspan="2"><strong>R$ {{ total|floatformat:2 }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<script>
+    document.querySelectorAll('.editar-saida').forEach(function(botao) {
+        botao.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            document.getElementById('vencimento').value = this.dataset.vencimento;
+            document.getElementById('credor').value = this.dataset.credor;
+            document.getElementById('despesa').value = this.dataset.despesa;
+            document.getElementById('descricao').value = this.dataset.descricao;
+            document.getElementById('valor').value = this.dataset.valor.replace(',', '.');
+            document.getElementById('conta_origem').value = this.dataset.conta_origem;
+
+            // Mudar texto do botão
+            const botaoGravar = document.getElementById('botao-gravar');
+            botaoGravar.textContent = 'Alterar';
+            botaoGravar.classList.remove('btn-success');
+            botaoGravar.classList.add('btn-warning');
+
+            // Inserir campo hidden com ID
+            const form = botaoGravar.closest('form');
+            let hiddenId = document.getElementById('id_saida');
+            if (!hiddenId) {
+                hiddenId = document.createElement('input');
+                hiddenId.type = 'hidden';
+                hiddenId.name = 'id';
+                hiddenId.id = 'id_saida';
+                form.appendChild(hiddenId);
+            }
+            hiddenId.value = this.dataset.id;
+        });
+    });
+</script>
+</body>
+</html>

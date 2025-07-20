@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'cdigital.middleware.ClienteDBMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -85,21 +86,26 @@ WSGI_APPLICATION = 'consultoriodigital.wsgi.application'
 # ************************************************************** USANDO MYSQL
 
 
-cliente_db = get_local_database_name()
+#cliente_db = get_local_database_name()
+import configparser
+
+config = configparser.ConfigParser()
+config.read('C:\\cdigital\\bd.ini')
+cliente_db_name = config.get('database', 'nome', fallback=None)
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME':'cdigital',
+        'NAME':cliente_db_name,
         'USER':'Usuario_Root',
         'PASSWORD':'Tr18365518AaBbCcDdEe#!',
         'HOST':'localhost',
         'PORT':'3308',
     },
 
-    cliente_db: {
+    'cliente_db': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': cliente_db,
+        'NAME': cliente_db_name,
         'USER': 'Usuario_Root',
         'PASSWORD': 'Tr18365518AaBbCcDdEe#!',
         'HOST': 'localhost',
@@ -108,6 +114,7 @@ DATABASES = {
 }
 
 DATABASE_ROUTERS = ['cdigital.db_router.MultiTenantRouter']
+#DATABASE_ROUTERS = ['cdigital.db_router.DatabaseRouter']
 
 # **************************************************************
 # ************************************************************** USANDO POSTGRESQL COM HEROKU

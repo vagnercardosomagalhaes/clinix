@@ -3,6 +3,8 @@ from django.utils.text import slugify
 from django.db.models import signals
 from django.contrib.auth.hashers import make_password, is_password_usable
 from django.utils import timezone
+from django.core.validators import RegexValidator
+
 
 class Base(models.Model):
 
@@ -64,15 +66,29 @@ class Usuarios(models.Model):
 
 class Convenios(Base):
     nomeconvenio = models.CharField('Nome', max_length=100, unique=True)
+    valor_repasse = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     slug = models.SlugField(unique=True, blank=True)
 
     def __str__(self):
         return self.nomeconvenio
-    
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Armazena o nome original para detectar alterações no save()
+        self._original_nomeconvenio = self.nomeconvenio
+
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.nomeconvenio)
+        if not self.slug or self.nomeconvenio != self._original_nomeconvenio:
+            base_slug = slugify(self.nomeconvenio)
+            slug = base_slug
+            contador = 1
+            # Garante que o slug é único, ignorando o próprio registro se for edição
+            while Convenios.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{contador}"
+                contador += 1
+            self.slug = slug
         super().save(*args, **kwargs)
+
 
 class Agenda(models.Model):
     criado = models.DateTimeField(default=timezone.now)
@@ -94,16 +110,92 @@ class Atendimentos(Base):
     hora_inicio = models.TimeField('Hora de Início')
     hora_fim = models.TimeField('Hora de Fim')
     descricao = models.TextField('Descrição', blank=True, null=True)
+    finalizado = models.BooleanField(default=False)
     profissional = models.ForeignKey(Usuarios, on_delete=models.CASCADE, related_name='agendamentos')
 
     def __str__(self):
         return f"{self.cliente.nome} - {self.data} {self.hora_inicio} - {self.hora_fim}"
 
 
+class Banco(models.Model):
+    nome = models.CharField(max_length=100, unique=True)
+    simbolo = models.CharField(max_length=10, blank=True, null=True)
+    agencia = models.CharField(max_length=20, blank=True, null=True)
+    conta = models.CharField(max_length=20, blank=True, null=True)
 
+    #class Meta:
+    #    db_table = 'cdigital_banco'  # garante nome explícito da tabela
+    #    verbose_name = 'Banco'
+    #    verbose_name_plural = 'Bancos'
 
+    def __str__(self):
+        return f"{self.nome} ({self.simbolo})" if self.simbolo else self.nome
 
+class Despesa(models.Model):
+    codigo = models.CharField(max_length=10,
+        validators=[RegexValidator(regex=r'^\d+$', message='Código deve conter apenas números')],
+        unique=True,
+    )
+    nome = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.codigo} - {self.nome}"
     
-    
-    
+class Receita(models.Model):
+    codigo = models.CharField(max_length=10,
+        validators=[RegexValidator(regex=r'^\d+$', message='Código deve conter apenas números')],
+        unique=True,
+    )
+    nome = models.CharField(max_length=100)
 
+    def __str__(self):
+        return f"{self.codigo} - {self.nome}"    
+    
+class ContaPagar(models.Model):
+    vencimento = models.DateField()
+    despesa = models.ForeignKey('Despesa', on_delete=models.PROTECT)
+    credor = models.CharField(max_length=100)
+    descricao = models.CharField(max_length=200, blank=True)
+    conta_origem = models.ForeignKey(Banco, on_delete=models.SET_NULL, null=True, blank=True)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    pago = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.credor} - {self.valor} em {self.vencimento}"
+
+
+class ContaReceber(models.Model):
+    vencimento = models.DateField()
+    cliente = models.CharField(max_length=255)
+    receita = models.ForeignKey(Receita, on_delete=models.CASCADE)
+    descricao = models.CharField(max_length=255, blank=True)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    conta_destino = models.ForeignKey(Banco, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.cliente} - {self.valor} em {self.vencimento}"   
+
+class EntradasMonetarias(models.Model):
+    vencimento = models.DateField()
+    cliente = models.CharField(max_length=100)
+    receita = models.ForeignKey('Receita', on_delete=models.PROTECT)
+    convenio = models.ForeignKey('Convenios', on_delete=models.SET_NULL, null=True, blank=True)
+    descricao = models.CharField(max_length=200, blank=True)
+    conta_destino = models.ForeignKey(Banco, on_delete=models.SET_NULL, null=True, blank=True)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    recebido = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.cliente} - {self.valor} em {self.vencimento}"
+    
+class SaidasMonetarias(models.Model):
+    vencimento = models.DateField()
+    credor = models.CharField(max_length=100)
+    despesa = models.ForeignKey(Despesa, on_delete=models.PROTECT)
+    descricao = models.CharField(max_length=200, blank=True)
+    conta_origem = models.ForeignKey(Banco, on_delete=models.SET_NULL, null=True, blank=True)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    pago = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.credor} - {self.valor} em {self.vencimento}"    

@@ -1,0 +1,85 @@
+{% load bootstrap4 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Códigos de Receitas</title>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'estilo.css' %}">
+</head>
+<body>
+<div class="container mt-4">
+    <h3>Cadastro de Códigos de Receitas</h3>
+    <form action="{% url 'criar_receita' %}" method="post" class="form-inline mb-3">
+        {% csrf_token %}
+        <input type="text" name="codigo" class="form-control mr-2" placeholder="Código" required>
+        <input type="text" name="nome" class="form-control mr-2" style="width: 350px;" placeholder="Nome da receita" required>
+        <button type="submit" class="btn btn-success mr-2">Gravar</button>
+        <a href="{% url 'index' %}" class="btn btn-secondary">Retornar</a>
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Código</th>
+                <th>Nome</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for receita in receitas %}
+            <tr>
+                <td>{{ receita.codigo }}</td>
+                <td>{{ receita.nome }}</td>
+                <td>
+                    <form action="{% url 'excluir_receita' receita.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-sm">Excluir</button>
+                    </form>
+                    <button class="btn btn-primary btn-sm" onclick="editarReceita({{ receita.id }}, '{{ receita.codigo }}', '{{ receita.nome }}')">Editar</button>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="3">Nenhuma receita cadastrada.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal edição -->
+<div class="modal" tabindex="-1" role="dialog" id="modalEditar">
+  <div class="modal-dialog" role="document">
+    <form method="post" id="formEditar">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Receita</h5>
+          <button type="button" class="close" onclick="fecharModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="text" name="codigo" id="edit_codigo" class="form-control mb-2" required>
+            <input type="text" name="nome" id="edit_nome" class="form-control mb-2" required>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Salvar</button>
+          <button type="button" class="btn btn-warning" onclick="fecharModal()">Cancelar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function editarReceita(id, codigo, nome) {
+    document.getElementById('edit_codigo').value = codigo;
+    document.getElementById('edit_nome').value = nome;
+    document.getElementById('formEditar').action = '/receitas/editar/' + id + '/';
+    document.getElementById('modalEditar').style.display = 'block';
+}
+function fecharModal() {
+    document.getElementById('modalEditar').style.display = 'none';
+}
+</script>
+</body>
+</html>

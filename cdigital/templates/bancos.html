@@ -1,0 +1,95 @@
+{% load bootstrap4 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Contas Monetárias</title>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'estilo.css' %}">
+</head>
+<body>
+<div class="container mt-4">
+    <h3>Cadastro de Contas Monetárias</h3>
+    <form action="{% url 'criar_banco' %}" method="post" class="form-inline mb-3">
+        {% csrf_token %}
+        <input type="text" name="nome" class="form-control mr-2" placeholder="Nome do banco" required>
+        <input type="text" name="simbolo" class="form-control mr-2" placeholder="Símbolo" required>
+        <input type="text" name="agencia" class="form-control mr-2" placeholder="Agência" required>
+        <input type="text" name="conta" class="form-control mr-2" placeholder="Conta" required>
+        <button type="submit" class="btn btn-success mr-2">Gravar</button>
+        <a href="{% url 'index' %}" class="btn btn-warning">Retornar</a>
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Nome</th>
+                <th>Símbolo</th>
+                <th>Agência</th>
+                <th>Conta</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for banco in bancos %}
+            <tr>
+                <td>{{ banco.nome }}</td>
+                <td>{{ banco.simbolo }}</td>
+                <td>{{ banco.agencia }}</td>
+                <td>{{ banco.conta }}</td>
+                <td>
+                    <form action="{% url 'excluir_banco' banco.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-sm">Excluir</button>
+                    </form>
+                    <button class="btn btn-primary btn-sm" onclick="editarBanco({{ banco.id }}, '{{ banco.nome }}', '{{ banco.simbolo }}', '{{ banco.agencia }}', '{{ banco.conta }}')">Editar</button>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">Nenhum banco cadastrado.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal de edição -->
+<div class="modal" tabindex="-1" role="dialog" id="modalEditar">
+  <div class="modal-dialog" role="document">
+    <form method="post" id="formEditar">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Banco</h5>
+          <button type="button" class="close" data-dismiss="modal" onclick="fecharModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="text" name="nome" id="edit_nome" class="form-control mb-2" required>
+            <input type="text" name="simbolo" id="edit_simbolo" class="form-control mb-2" required>
+            <input type="text" name="agencia" id="edit_agencia" class="form-control mb-2" required>
+            <input type="text" name="conta" id="edit_conta" class="form-control mb-2" required>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Salvar</button>
+          <button type="button" class="btn btn-warning" onclick="fecharModal()">Cancelar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function editarBanco(id, nome, simbolo, agencia, conta) {
+    document.getElementById('edit_nome').value = nome;
+    document.getElementById('edit_simbolo').value = simbolo;
+    document.getElementById('edit_agencia').value = agencia;
+    document.getElementById('edit_conta').value = conta;
+    document.getElementById('formEditar').action = '/bancos/editar/' + id + '/';
+    document.getElementById('modalEditar').style.display = 'block';
+}
+function fecharModal() {
+    document.getElementById('modalEditar').style.display = 'none';
+}
+</script>
+</body>
+</html>

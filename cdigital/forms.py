@@ -3,21 +3,23 @@ from .models import Clientes, Usuarios, Convenios
 from .models import Agenda, Atendimentos 
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
+from .models import Receita, Convenios
 
 
 
 class Conveniosform(forms.ModelForm):
     class Meta:
-        model = Convenios 
-        exclude = ['slug']
-        widgets = {
-            'nomeconvenio': forms.TextInput(attrs={'placeholder': 'Nome do convênio'}),
-        }  
+        model = Convenios
+        fields = '__all__'
+        exclude = ['slug']  
          
     def clean_nomeconvenio(self):
-        nome = self.cleaned_data['nomeconvenio'].strip()
-        if Convenios.objects.filter(nomeconvenio__iexact=nome).exists():
-            raise forms.ValidationError("Este convênio já está cadastrado.")
+        nome = self.cleaned_data['nomeconvenio']
+        qs = Convenios.objects.filter(nomeconvenio__iexact=nome)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError('Já existe um convênio com esse nome.')
         return nome
     
 class Clientesform(forms.ModelForm):
