@@ -28,14 +28,17 @@ class Clientesform(forms.ModelForm):
         #fields = ['nome', 'data_nascimento', 'cpf', 'email', 'telefone', 'endereco', 'bairro', 'cidade', 'estado', 'cep']
         exclude = ['slug']
         widgets = {
-            'data_nascimento': forms.DateInput(attrs={'type': 'date'},format='%Y-%m-%d'),
-            'email': forms.EmailInput(attrs={'placeholder': 'Digite seu email'}),
-            'telefone': forms.TextInput(attrs={'placeholder': 'Digite seu telefone'}),
-            'endereco': forms.TextInput(attrs={'placeholder': 'Digite seu endereço'}),
-            'bairro': forms.TextInput(attrs={'placeholder': 'Digite seu bairro'}),
-            'cidade': forms.TextInput(attrs={'placeholder': 'Digite sua cidade'}),
-            'estado': forms.TextInput(attrs={'placeholder': 'Digite seu estado'}),
-            'cep': forms.TextInput(attrs={'placeholder': 'Digite seu CEP'}),
+            'convenio': forms.Select(attrs={'class': 'form-control'}),
+            'carteirinha': forms.TextInput(attrs={'class': 'form-control'}),
+            'data_nascimento': forms.DateInput(attrs={'type': 'date','class': 'form-control input-medio'},format='%Y-%m-%d'),
+            'email': forms.EmailInput(attrs={'class': 'form-control','placeholder': 'Digite seu email'}),
+            'telefone': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu telefone'}),
+            'endereco': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu endereço'}),
+            'bairro': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu bairro'}),
+            'cidade': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite sua cidade'}),
+            'estado': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu estado'}),
+            'cep': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu CEP'}),
+            'slug': forms.HiddenInput()
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,25 +48,31 @@ class Clientesform(forms.ModelForm):
 class UsuariosForm(forms.ModelForm):
     senha2 = forms.CharField(
         label='Confirme a senha',
-        widget=forms.PasswordInput(attrs={'placeholder': 'Repita sua senha'}),
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Repita sua senha',
+            'class': 'form-control'
+        }),
         required=False,
         help_text='Para trocar a senha, preencha os dois campos de senha. Deixe em branco para manter a senha atual.',
-        
     )
+
     class Meta:
         model = Usuarios
-        fields = ['nome', 'email', 'login', 'senha', 'senha2', 'is_admin', 'is_medico']
+        fields = ['nome', 'email', 'login', 'senha', 'senha2', 'is_admin', 'is_medico', 'crm']
         widgets = {
-            'senha': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'login': forms.TextInput(attrs={'class': 'form-control'}),
+            'senha': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'crm': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_admin': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_medico': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-        
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.fields['login'].required = True
 
-        # Só mostra help_text se for edição (instância já salva no banco)
         if self.instance and self.instance.pk:
             self.fields['senha2'].help_text = (
                 'Para trocar a senha, preencha os dois campos de senha. '
@@ -74,25 +83,30 @@ class UsuariosForm(forms.ModelForm):
         cleaned_data = super().clean()
         senha = cleaned_data.get("senha")
         senha2 = cleaned_data.get("senha2")
+        is_medico = cleaned_data.get('is_medico')
+        crm = cleaned_data.get('crm')
 
-        # Se um dos dois estiver preenchido, ambos devem estar e ser iguais
+        if is_medico and not crm:
+            self.add_error('crm', 'O campo CRM é obrigatório para médicos.')
+
         if senha or senha2:
             if not senha or not senha2:
                 raise ValidationError("Ambos os campos de senha devem ser preenchidos.")
             if senha != senha2:
                 raise ValidationError("As senhas não coincidem.")
 
-            return cleaned_data
-    
+        return cleaned_data
+
     def save(self, commit=True):
         usuario = super().save(commit=False)
-        usuario.senha = make_password(self.cleaned_data['senha'])
+        if self.cleaned_data['senha']:  # Evita sobrescrever se senha estiver vazia (em edição)
+            usuario.senha = make_password(self.cleaned_data['senha'])
 
         if commit:
             usuario.save()
         return usuario
 
-
+#*****************************************************************************
 class LoginForm(forms.Form):
     login = forms.CharField(label="Usuário", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
     senha = forms.CharField(label="Senha", widget=forms.PasswordInput(attrs={'class': 'form-control'}))

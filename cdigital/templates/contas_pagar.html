@@ -72,12 +72,23 @@
     </form>
 
     <form method="get" class="form-inline mb-3">
-        <label for="data_de" class="mr-2">Data de:</label>
-        <input type="date" name="data_de" class="form-control mr-2" value="{{ data_de }}">
-        <label for="data_ate" class="mr-2">Até:</label>
-        <input type="date" name="data_ate" class="form-control mr-2" value="{{ data_ate }}">
-        <button class="btn btn-primary">Filtrar</button>
-    </form>
+    <label for="data_de" class="mr-2">Data de:</label>
+    <input type="date" name="data_de" class="form-control mr-2" value="{{ data_de }}">
+
+    <label for="data_ate" class="mr-2">Até:</label>
+    <input type="date" name="data_ate" class="form-control mr-2" value="{{ data_ate }}">
+
+    <label for="filtro_credor" class="mr-2">Credor:</label>
+    <input list="credores_datalist" name="filtro_credor" style="width: 450px;" id="filtro_credor" class="form-control mr-2"
+           placeholder="Digite ou selecione" value="{{ filtro_credor }}">
+    <datalist id="credores_datalist">
+        {% for c in credores %}
+            <option value="{{ c }}">
+        {% endfor %}
+    </datalist>
+
+    <button class="btn btn-primary">Filtrar</button>
+</form>
 
     <table class="table table-striped table-bordered">
         <thead class="thead-dark">

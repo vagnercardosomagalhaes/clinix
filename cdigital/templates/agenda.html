@@ -130,7 +130,12 @@
                             <option value="">Nenhum convênio cadastrado</option>
                         {% endfor %}
                     </select>
-                </div>                
+                </div>
+                <!-- Carteirinha -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_carteirinha" class="form-label">Carteirinha</label>
+                    <input type="text" id="id_carteirinha" name="carteirinha" class="form-control" />
+                </div>
                 <!-- Telefone -->
                 <div class="mb-3">
                     <label for="id_telefone" class="form-label">Telefone</label>
@@ -252,6 +257,11 @@
                     $("#cliente_autocomplete").val(ui.item.label);
                     $("#id_cliente").val(ui.item.id);
                     $("#id_telefone").val(ui.item.telefone);
+                    $("#id_carteirinha").val(ui.item.carteirinha);
+                    
+                    if (ui.item.convenio_id) {
+                        $("#id_convenio").val(ui.item.convenio_id);
+                    }
                     return false;
                 }
             });

@@ -1,6 +1,6 @@
 {% load static %}
 {% load bootstrap4 %}
-
+{% load widget_tweaks %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -23,16 +23,67 @@
             {% endfor %}
         {% endif %}
         <!-- Formulário de cadastro -->
-        <form method="post">
+        <form method="post" class="form" role="form" autocomplete="off">
             {% csrf_token %}
-            {% bootstrap_form form %}            
-                <div class="col d-flex gap-2">
-                    <button type="submit" class="btn btn-primary ms-2">Cadastrar</button> 
-                    &emsp;               
-                    <a href="{% url 'index' %}" class="btn btn-warning ms-2" role="button">Retornar para o início</a>                    
-                </div>               
-        </form>
-        <!-- Lista de usuários cadastrados -->
+            <div class="form-group">
+                <label for="{{ form.nome.id_for_label }}">Nome</label>
+                {{ form.nome|add_class:"form-control" }}
+                {{ form.nome.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email|add_class:"form-control" }}
+                {{ form.email.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.login.id_for_label }}">Login</label>
+                {{ form.login|add_class:"form-control" }}
+                {{ form.login.errors }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.senha.id_for_label }}">Senha</label>
+                {{ form.senha|add_class:"form-control" }}
+                {{ form.senha.errors }}
+                
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.senha2.id_for_label }}">Confirme a senha</label>
+                {{ form.senha2|add_class:"form-control" }}
+                {{ form.senha2.errors }}
+                {% if form.senha2.help_text %}
+                    <small class="form-text text-muted">{{ form.senha2.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="form-group form-check">
+                {{ form.is_admin }}
+                <label for="{{ form.is_admin.id_for_label }}" class="form-check-label">É Administrador?</label>
+                {{ form.is_admin.errors }}
+            </div>
+
+            <div class="form-group d-flex align-items-center gap-3">
+                <div class="form-check mb-0">
+                    {{ form.is_medico }}
+                    <label for="{{ form.is_medico.id_for_label }}" class="form-check-label mb-0">É Médico?</label>
+                    {{ form.is_medico.errors }}
+                </div>                
+            </div>
+            <div class="ms-4 w-50">
+                    <label for="{{ form.crm.id_for_label }}" class="mb-0">CRM:</label>
+                    {{ form.crm }}
+                    {{ form.crm.errors }}
+                </div>
+
+            <div class="col d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary ms-2">Cadastrar</button>
+                &nbsp;&nbsp;
+                <a href="{% url 'index' %}" class="btn btn-warning ms-2" role="button">Retornar para o início</a>
+            </div>
+        </form>       <!-- Lista de usuários cadastrados -->
         <hr>        
         <h2 class="mt-4">Usuários Cadastrados</h2>
 
@@ -66,5 +117,26 @@
     </div>
 
     {% bootstrap_javascript jquery='full' %}
+<script>
+    function toggleCRMField() {
+        const isMedicoCheckbox = document.getElementById('id_is_medico');
+        const crmField = document.getElementById('id_crm');
+
+        if (isMedicoCheckbox.checked) {
+            crmField.required = true;
+            crmField.parentElement.style.display = 'inline';
+        } else {
+            crmField.required = false;
+            crmField.value = '';
+            crmField.parentElement.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const isMedicoCheckbox = document.getElementById('id_is_medico');
+        isMedicoCheckbox.addEventListener('change', toggleCRMField);
+        toggleCRMField();  // Executa na carga inicial
+    });
+</script>    
 </body>
 </html>

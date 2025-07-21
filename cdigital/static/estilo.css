@@ -45,3 +45,7 @@ input[type="text"],
 #id_login {
   text-transform: none !important;
 }
+
+#id_crm {
+    width: 150px;
+}

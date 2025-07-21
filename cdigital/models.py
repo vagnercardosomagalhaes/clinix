@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.core.validators import RegexValidator
 
 
+
 class Base(models.Model):
 
     criado = models.DateTimeField('Data de criação',auto_now_add=True)
@@ -14,55 +15,6 @@ class Base(models.Model):
 
     class Meta:
         abstract = True
-
-class Clientes(Base):
-    nome = models.CharField('Nome', max_length=100)
-    data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
-    cpf = models.CharField('CPF', max_length=14, unique=True, blank=True, null=True)
-    email = models.EmailField('Email', unique=True)
-    telefone = models.CharField('Telefone', max_length=15, blank=True, null=True)
-    endereco = models.CharField('Endereço', max_length=255, blank=True, null=True)
-    bairro = models.CharField('Bairro', max_length=100, blank=True, null=True)
-    cidade = models.CharField('Cidade', max_length=100, blank=True, null=True)
-    estado = models.CharField('Estado', max_length=2, blank=True, null=True)
-    cep = models.CharField('CEP', max_length=10, blank=True, null=True)
-    slug = models.SlugField(unique=True, blank=True)
-
-    def __str__(self):
-        return self.nome
-    
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.nome)
-        super().save(*args, **kwargs)
-
-
-def clientes_pre_save(sender, instance, **kwargs):
-    instance.slug = slugify(instance.nome)
-
-signals.pre_save.connect(clientes_pre_save, sender=Clientes)
-
-class Usuarios(models.Model):
-    nome = models.CharField('Nome', max_length=100)
-    email = models.EmailField('Email', unique=True)
-    login = models.CharField('Login', max_length=100, unique=True, null=True, blank=True)
-    senha = models.CharField('Senha', max_length=128)
-    is_admin = models.BooleanField('É Administrador?', default=False)
-    is_medico = models.BooleanField('É Médico',default=False)
-    slug = models.SlugField(unique=True, blank=True)
-
-    def __str__(self):
-        return self.nome
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.nome)
-
-        # Só criptografa se ainda não estiver criptografada
-        if self.senha and not self.senha.startswith('pbkdf2_'):
-            self.senha = make_password(self.senha)
-
-        super().save(*args, **kwargs)
 
 class Convenios(Base):
     nomeconvenio = models.CharField('Nome', max_length=100, unique=True)
@@ -89,6 +41,63 @@ class Convenios(Base):
             self.slug = slug
         super().save(*args, **kwargs)
 
+#***********************************************************************************
+
+class Clientes(Base):
+    nome = models.CharField('Nome', max_length=100)
+    convenio = models.ForeignKey(Convenios, on_delete=models.SET_NULL, null=True, blank=True)
+    carteirinha = models.CharField(max_length=50, blank=True, null=True)
+    data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
+    cpf = models.CharField('CPF', max_length=14, unique=True, blank=True, null=True)
+    email = models.EmailField('Email', unique=True)
+    telefone = models.CharField('Telefone', max_length=15, blank=True, null=True)
+    endereco = models.CharField('Endereço', max_length=255, blank=True, null=True)
+    bairro = models.CharField('Bairro', max_length=100, blank=True, null=True)
+    cidade = models.CharField('Cidade', max_length=100, blank=True, null=True)
+    estado = models.CharField('Estado', max_length=2, blank=True, null=True)
+    cep = models.CharField('CEP', max_length=10, blank=True, null=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def __str__(self):
+        return self.nome
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nome)
+        super().save(*args, **kwargs)
+
+
+def clientes_pre_save(sender, instance, **kwargs):
+    instance.slug = slugify(instance.nome)
+
+signals.pre_save.connect(clientes_pre_save, sender=Clientes)
+
+#***********************************************************************************
+
+class Usuarios(models.Model):
+    nome = models.CharField('Nome', max_length=100)
+    email = models.EmailField('Email', unique=True)
+    login = models.CharField('Login', max_length=100, unique=True, null=True, blank=True)
+    senha = models.CharField('Senha', max_length=128)
+    is_admin = models.BooleanField('É Administrador?', default=False)
+    is_medico = models.BooleanField('É Médico',default=False)
+    crm = models.CharField('CRM', max_length=20, blank=True, null=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def __str__(self):
+        return self.nome
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nome)
+
+        # Só criptografa se ainda não estiver criptografada
+        if self.senha and not self.senha.startswith('pbkdf2_'):
+            self.senha = make_password(self.senha)
+
+        super().save(*args, **kwargs)
+
+#***********************************************************************************
 
 class Agenda(models.Model):
     criado = models.DateTimeField(default=timezone.now)
@@ -105,6 +114,8 @@ class Agenda(models.Model):
     def __str__(self):
         return f"{self.cliente.nome} - {self.cliente.telefone}- {self.data} {self.hora_inicio} - {self.hora_fim}"
 
+#***********************************************************************************
+
 class Atendimentos(Base):
     cliente = models.ForeignKey(Clientes, on_delete=models.CASCADE, related_name='atendimentos')
     data = models.DateField('Data')
@@ -116,7 +127,7 @@ class Atendimentos(Base):
 
     def __str__(self):
         return f"{self.cliente.nome} - {self.data} {self.hora_inicio} - {self.hora_fim}"
-
+#***********************************************************************************
 
 class Banco(models.Model):
     nome = models.CharField(max_length=100, unique=True)
@@ -131,6 +142,7 @@ class Banco(models.Model):
 
     def __str__(self):
         return f"{self.nome} ({self.simbolo})" if self.simbolo else self.nome
+#***********************************************************************************
 
 class Despesa(models.Model):
     codigo = models.CharField(max_length=10,
@@ -141,7 +153,8 @@ class Despesa(models.Model):
 
     def __str__(self):
         return f"{self.codigo} - {self.nome}"
-    
+#***********************************************************************************
+#     
 class Receita(models.Model):
     codigo = models.CharField(max_length=10,
         validators=[RegexValidator(regex=r'^\d+$', message='Código deve conter apenas números')],
@@ -151,6 +164,7 @@ class Receita(models.Model):
 
     def __str__(self):
         return f"{self.codigo} - {self.nome}"    
+ #***********************************************************************************
     
 class ContaPagar(models.Model):
     vencimento = models.DateField()
@@ -164,7 +178,7 @@ class ContaPagar(models.Model):
     def __str__(self):
         return f"{self.credor} - {self.valor} em {self.vencimento}"
 
-
+#***********************************************************************************
 class ContaReceber(models.Model):
     vencimento = models.DateField()
     cliente = models.CharField(max_length=255)
@@ -175,6 +189,7 @@ class ContaReceber(models.Model):
 
     def __str__(self):
         return f"{self.cliente} - {self.valor} em {self.vencimento}"   
+#***********************************************************************************
 
 class EntradasMonetarias(models.Model):
     vencimento = models.DateField()
@@ -188,7 +203,7 @@ class EntradasMonetarias(models.Model):
 
     def __str__(self):
         return f"{self.cliente} - {self.valor} em {self.vencimento}"
-    
+#***********************************************************************************    
 class SaidasMonetarias(models.Model):
     vencimento = models.DateField()
     credor = models.CharField(max_length=100)

@@ -45,8 +45,11 @@ INSTALLED_APPS = [
     'cdigital', #aplicação que eu criei # ****************************************
     'bootstrap4', # **************************************************************
     'stdimage',   # ************************************************************** 
-    'widget_tweaks',#*************************************************************          
+    'widget_tweaks',#************************************************************* 
+    'crispy_forms',         
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

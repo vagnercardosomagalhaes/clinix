@@ -233,7 +233,19 @@ def clientes(request):
 def autocomplete_cliente(request):
     termo = request.GET.get('term', '')
     clientes = Clientes.objects.filter(nome__icontains=termo)[:10]
-    resultados = [{'label': c.nome, 'value': c.nome, 'id': c.pk, 'telefone': c.telefone} for c in clientes]
+
+    resultados = []
+    for c in clientes:
+        resultados.append({
+            'label': c.nome,
+            'value': c.nome,
+            'id': c.pk,
+            'telefone': c.telefone or '',
+            'carteirinha': c.carteirinha or '',
+            'convenio_id': c.convenio.id if c.convenio else '',
+            'convenio_nome': c.convenio.nomeconvenio if c.convenio else '',
+        })
+
     return JsonResponse(resultados, safe=False)
 
 #*******************************************************************************
@@ -379,7 +391,7 @@ def editar_atendimento(request, agenda_id):
                     vencimento=agendamento.data,
                     cliente=convenio.nomeconvenio,
                     receita=Receita.objects.filter(codigo='01').first(),  # pode preencher com uma receita padrão se quiser
-                    descricao=f'Consulta: {agendamento.cliente.nome}',
+                    descricao=f'Consulta: {agendamento.cliente.nome}{agendamento.cliente.carteirinha}',
                     valor=convenio.valor_repasse,
                     conta_destino=None  # preencher se desejar
                 )
@@ -687,9 +699,13 @@ def contas_pagar(request):
     contas = ContaPagar.objects.all().order_by('-vencimento')
     data_de = request.GET.get('data_de')
     data_ate = request.GET.get('data_ate')
+    filtro_credor = request.GET.get('filtro_credor', '')
 
     if data_de and data_ate:
         contas = contas.filter(vencimento__range=[data_de, data_ate])
+
+    if filtro_credor:
+        contas = contas.filter(credor__icontains=filtro_credor)    
 
     total = contas.aggregate(Sum('valor'))['valor__sum'] or 0
     credores = ContaPagar.objects.values_list('credor', flat=True).distinct()
@@ -702,6 +718,7 @@ def contas_pagar(request):
         'bancos': bancos,
         'data_de': data_de,
         'data_ate': data_ate,
+        'filtro_credor': filtro_credor,
         'total': total,
     })
 
@@ -767,9 +784,13 @@ def contas_receber(request):
     contas = ContaReceber.objects.all().order_by('-vencimento')
     data_de = request.GET.get('data_de')
     data_ate = request.GET.get('data_ate')
+    filtro_cliente = request.GET.get('filtro_cliente', '')
 
     if data_de and data_ate:
         contas = contas.filter(vencimento__range=[data_de, data_ate])
+
+    if filtro_cliente:
+        contas = contas.filter(cliente__icontains=filtro_cliente)    
 
     total = contas.aggregate(Sum('valor'))['valor__sum'] or 0
     clientes = ContaReceber.objects.values_list('cliente', flat=True).distinct()
@@ -781,6 +802,7 @@ def contas_receber(request):
         'bancos': Banco.objects.all(),
         'data_de': data_de,
         'data_ate': data_ate,
+        'filtro_cliente': filtro_cliente,
         'total': total,
     })
 #***********************************************************************************************
@@ -832,12 +854,15 @@ def entradas_monetarias(request):
     # Filtros
     data_de = request.GET.get('data_de')
     data_ate = request.GET.get('data_ate')
+    filtro_cliente = request.GET.get('filtro_cliente', '')
     entradas = EntradasMonetarias.objects.all()
 
     if data_de:
         entradas = entradas.filter(vencimento__gte=data_de)
     if data_ate:
         entradas = entradas.filter(vencimento__lte=data_ate)
+    if filtro_cliente:
+        entradas = entradas.filter(cliente__icontains=filtro_cliente)    
 
     entradas = entradas.order_by('-vencimento')
     total = entradas.aggregate(Sum('valor'))['valor__sum'] or 0
@@ -852,6 +877,7 @@ def entradas_monetarias(request):
         'receitas': receitas,
         'bancos': bancos,
         'total': total,
+        'filtro_cliente': filtro_cliente,
         'data_de': data_de,
         'data_ate': data_ate
     })
@@ -915,9 +941,12 @@ def saidas_monetarias(request):
     saidas = SaidasMonetarias.objects.all().order_by('-vencimento')
     data_de = request.GET.get('data_de')
     data_ate = request.GET.get('data_ate')
+    filtro_credor = request.GET.get('filtro_credor', '')
 
     if data_de and data_ate:
         saidas = saidas.filter(vencimento__range=[data_de, data_ate])
+    if filtro_credor:
+        saidas = saidas.filter(credor__icontains=filtro_credor)    
 
     total = saidas.aggregate(Sum('valor'))['valor__sum'] or 0
     credores = SaidasMonetarias.objects.values_list('credor', flat=True).distinct()
@@ -931,6 +960,7 @@ def saidas_monetarias(request):
         'bancos': bancos,
         'data_de': data_de,
         'data_ate': data_ate,
+        'filtro_credor': filtro_credor,
         'total': total,
     })
 
