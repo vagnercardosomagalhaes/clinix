@@ -60,6 +60,15 @@ urlpatterns = [
     path('agenda/excluir/<int:id>/', views.excluir_agenda, name='excluir_agenda'),
     path('', views.index, name='index'),
     path('logout/', views.logout_view, name='logout'),
+
+    path('empresa/', views.dados_empresa, name='dados_empresa'),
+    path('empresa/excluir/<int:id>/', views.excluir_empresa, name='excluir_empresa'),
+
+    path('servicos/', views.servicos, name='servicos'),
+    path('servicos/editar/<int:id>/', views.editar_servico, name='editar_servico'),
+    path('servicos/excluir/<int:id>/', views.excluir_servico, name='excluir_servico'),
+
+    
     
     #path('contato/', contato, name='contato'),    
 ]

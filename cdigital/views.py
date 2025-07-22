@@ -36,8 +36,91 @@ from .models import SaidasMonetarias
 from .models import Receita, Convenios
 from django.core.exceptions import ValidationError
 from decimal import Decimal
+from .models import Empresa, Servico
+
+from openpyxl import load_workbook
+from django.conf import settings
+import os
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 
 
+def dados_empresa(request):
+    empresa_id = request.POST.get("empresa_id")
+    
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        cnpj = request.POST.get('cnpj')
+        registro_ans = request.POST.get('registro_ans')
+
+        if request.POST.get("acao") == "alterar":
+            empresa = Empresa.objects.get(id=empresa_id)
+            empresa.nome = nome
+            empresa.cnpj = cnpj
+            empresa.registro_ans = registro_ans
+            empresa.save()
+            messages.success(request, "Dados atualizados com sucesso.")
+        else:
+            Empresa.objects.create(nome=nome, cnpj=cnpj)
+            messages.success(request, "Empresa cadastrada com sucesso.")
+
+        return redirect('dados_empresa')
+
+    empresas = Empresa.objects.all()
+    return render(request, 'dados_empresa.html', {'empresas': empresas})
+
+#***************************************************************************************************************
+def excluir_empresa(request, id):
+    Empresa.objects.filter(id=id).delete()
+    messages.success(request, "Empresa excluída com sucesso.")
+    return redirect('dados_empresa')
+#***************************************************************************************************************
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Servico
+from .forms import ServicosForm
+from django.contrib import messages
+
+def servicos(request):
+    if request.method == 'POST':
+        if 'id' in request.POST and request.POST['id']:
+            # Edição
+            servico = get_object_or_404(Servico, pk=request.POST['id'])
+            form = ServicosForm(request.POST, instance=servico)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Serviço alterado com sucesso.")
+                return redirect('servicos')
+        else:
+            # Novo
+            form = ServicosForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Serviço gravado com sucesso.")
+                return redirect('servicos')
+    else:
+        form = ServicosForm()
+
+    servicos = Servico.objects.all().order_by('codigo')
+    return render(request, 'servicos.html', {'form': form, 'servicos': servicos})
+
+
+def editar_servico(request, id):
+    servico = get_object_or_404(Servico, pk=id)
+    form = ServicosForm(instance=servico)
+    servicos = Servico.objects.all().order_by('codigo')
+    return render(request, 'servicos.html', {
+        'form': form,
+        'servicos': servicos,
+    })
+
+
+def excluir_servico(request, id):
+    servico = get_object_or_404(Servico, pk=id)
+    servico.delete()
+    messages.success(request, 'Serviço excluído com sucesso.')
+    return redirect('servicos')
+
+#***************************************************************************************************************
 class ClienteDBMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -377,39 +460,47 @@ def atendimentos(request):
 def editar_atendimento(request, agenda_id):
     agendamento = get_object_or_404(Agenda, id=agenda_id)
     profissionais = Usuarios.objects.filter(is_medico=True)
+    servicos = Servico.objects.all().order_by('codigo')
 
     if request.method == 'POST':
         descricao = request.POST.get('descricao')
         profissional_id = request.POST.get('profissional')
-        finalizar = request.POST.get('finalizado')  # corresponde ao name do checkbox
-        convenio = agendamento.convenio  # já está no agendamento
+        finalizar = request.POST.get('finalizado')  # checkbox
 
-        # Se finalizar estiver marcado, cria ContaReceber
+        codigo_tuss_id = request.POST.get('codigo_tuss')
+        descricao_tuss_id = request.POST.get('descricao_tuss')
+
+        # Buscar as instâncias do Servico, ou None se não informado
+        codigo_tuss = Servico.objects.get(id=codigo_tuss_id) if codigo_tuss_id else None
+        descricao_tuss = Servico.objects.get(id=descricao_tuss_id) if descricao_tuss_id else None
+
+        convenio = agendamento.convenio
+
         if finalizar:
             if convenio:
                 ContaReceber.objects.create(
                     vencimento=agendamento.data,
                     cliente=convenio.nomeconvenio,
-                    receita=Receita.objects.filter(codigo='01').first(),  # pode preencher com uma receita padrão se quiser
-                    descricao=f'Consulta: {agendamento.cliente.nome}{agendamento.cliente.carteirinha}',
+                    receita=Receita.objects.filter(codigo='01').first(),
+                    descricao=f'Consulta: {agendamento.cliente.nome} {agendamento.cliente.carteirinha}',
                     valor=convenio.valor_repasse,
-                    conta_destino=None  # preencher se desejar
+                    conta_destino=None
                 )
 
-        # Atualiza o agendamento existente
         agendamento.descricao = descricao
         agendamento.profissional_id = profissional_id
         agendamento.finalizado = bool(finalizar)
         agendamento.save()
 
-        # Cria um registro de atendimento
         Atendimentos.objects.create(
             cliente=agendamento.cliente,
             data=agendamento.data,
             hora_inicio=agendamento.hora_inicio,
             hora_fim=agendamento.hora_fim,
             descricao=descricao,
-            profissional_id=profissional_id
+            profissional_id=profissional_id,
+            codigo_tuss=codigo_tuss,
+            descricao_tuss=descricao_tuss
         )
 
         if finalizar:
@@ -418,15 +509,17 @@ def editar_atendimento(request, agenda_id):
             messages.success(request, 'Atendimento registrado com sucesso.')
         return redirect('atendimentos')
 
-    # GET – carregar tela
-    atendimentos_anteriores = Atendimentos.objects.filter(
-        cliente=agendamento.cliente
-    ).order_by('-data', 'hora_inicio')
+    atendimentos_anteriores = Atendimentos.objects.filter(cliente=agendamento.cliente).order_by('-data', 'hora_inicio')
+
+    # Último atendimento para preencher os selects
+    atendimento = Atendimentos.objects.filter(cliente=agendamento.cliente).order_by('-data').first()
 
     return render(request, 'editar_atendimento.html', {
         'agendamento': agendamento,
         'profissionais': profissionais,
-        'atendimentos_anteriores': atendimentos_anteriores
+        'atendimentos_anteriores': atendimentos_anteriores,
+        'servicos': servicos,
+        'atendimento': atendimento,  # corrigido aqui
     })
 #*******************************************************************************
 def excluir_atendimento(request, atendimento_id):
@@ -1021,3 +1114,6 @@ def receber_conta(request):
         ContaReceber.objects.filter(id=id_original).delete()
         messages.success(request, 'Conta recebida com sucesso.')
         return redirect('contas_receber')
+    
+
+

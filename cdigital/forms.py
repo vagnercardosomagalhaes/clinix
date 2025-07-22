@@ -3,10 +3,23 @@ from .models import Clientes, Usuarios, Convenios
 from .models import Agenda, Atendimentos 
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
-from .models import Receita, Convenios
+from .models import Receita, Convenios, Empresa, Servico
 
 
 
+
+class EmpresaForm(forms.ModelForm):
+    class Meta:
+        model = Empresa
+        fields = ['nome', 'cnpj', 'registro_ans']
+
+#*****************************************************************************
+class ServicosForm(forms.ModelForm):
+    class Meta:
+        model = Servico
+        fields = ['codigo', 'descricao']        
+
+#*****************************************************************************
 class Conveniosform(forms.ModelForm):
     class Meta:
         model = Convenios
@@ -21,13 +34,15 @@ class Conveniosform(forms.ModelForm):
         if qs.exists():
             raise ValidationError('Já existe um convênio com esse nome.')
         return nome
-    
+#*****************************************************************************
+#     
 class Clientesform(forms.ModelForm):
     class Meta:
         model = Clientes
         #fields = ['nome', 'data_nascimento', 'cpf', 'email', 'telefone', 'endereco', 'bairro', 'cidade', 'estado', 'cep']
         exclude = ['slug']
         widgets = {
+            'sexo': forms.Select(attrs={'class': 'form-control'}),
             'convenio': forms.Select(attrs={'class': 'form-control'}),
             'carteirinha': forms.TextInput(attrs={'class': 'form-control'}),
             'data_nascimento': forms.DateInput(attrs={'type': 'date','class': 'form-control input-medio'},format='%Y-%m-%d'),
@@ -146,6 +161,8 @@ class AtendimentosModelForm(forms.ModelForm):
             'hora_inicio': forms.TimeInput(attrs={'type': 'time'}),
             'hora_fim': forms.TimeInput(attrs={'type': 'time'}),
             'descricao': forms.Textarea(attrs={'rows': 4}),
+            'codigo_tuss': forms.TextInput(attrs={'class': 'form-control'}),
+            'descricao_tuss': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 
@@ -158,6 +175,7 @@ class AgendaModelForm(forms.ModelForm):
             'hora_inicio': forms.TimeInput(attrs={'type': 'time'}),
             'hora_fim': forms.TimeInput(attrs={'type': 'time'}),
             'descricao': forms.Textarea(attrs={'rows': 4}),
+            
         }   
 
 class ClientesModelForm(forms.ModelForm):

@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import dj_database_url
 from utils.database_selector import get_local_database_name
+from django.conf import settings
 
 
 
@@ -79,6 +80,8 @@ TEMPLATES = [
         },
     },
 ]
+
+TUSS_XLSX_PATH = r'C:\Cdigital\codigos.xlsx'
 
 WSGI_APPLICATION = 'consultoriodigital.wsgi.application'
 

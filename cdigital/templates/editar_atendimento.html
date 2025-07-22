@@ -1,5 +1,6 @@
 {% load bootstrap4 %}
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -29,6 +30,31 @@
             <textarea name="descricao" class="form-control" rows="5" placeholder="Digite a descrição do atendimento...">{{ agendamento.descricao }}</textarea>
         </div>
 
+        <div class="form-group">
+            <label for="descricao_tuss">Descrição do Serviço</label>
+            <select id="descricao_tuss" name="descricao_tuss" class="form-control">
+                <option value="">Selecione...</option>
+                {% for servico in servicos %}
+                    <option value="{{ servico.id }}" {% if atendimento.descricao_tuss and servico.id == atendimento.descricao_tuss.id %}selected{% endif %}>
+                        {{ servico.descricao }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="codigo_tuss">Código do Serviço</label>
+            <select id="codigo_tuss" name="codigo_tuss" class="form-control">
+                <option value="">Selecione...</option>
+                {% for servico in servicos %}
+                    <option value="{{ servico.id }}" {% if atendimento.codigo_tuss and servico.id == atendimento.codigo_tuss.id %}selected{% endif %}>
+                        {{ servico.codigo }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        
         <div class="form-group">
             <label>Profissional responsável</label>
             <select name="profissional" class="form-control">
@@ -111,6 +137,8 @@
 {% bootstrap_javascript jquery='full' %}
 
 <!-- ✅ Script para controlar finalização -->
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script>
 document.getElementById('form-atendimento').addEventListener('submit', function(e) {
     const checkbox = document.getElementById('finalizar');
@@ -122,6 +150,26 @@ document.getElementById('form-atendimento').addEventListener('submit', function(
         }
     }
 });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const descricaoSelect = document.getElementById('descricao_tuss');
+    const codigoSelect = document.getElementById('codigo_tuss');
+
+    if (!descricaoSelect || !codigoSelect) return; // se não achar, sai
+
+    // Atualiza código quando muda descrição
+    descricaoSelect.addEventListener('change', function() {
+      const selectedId = this.value;
+      codigoSelect.value = selectedId || '';
+    });
+
+    // Atualiza descrição quando muda código
+    codigoSelect.addEventListener('change', function() {
+      const selectedId = this.value;
+      descricaoSelect.value = selectedId || '';
+    });
+  });
 </script>
 </body>
 </html>

@@ -7,6 +7,22 @@ from django.core.validators import RegexValidator
 
 
 
+class Empresa(models.Model):
+    nome = models.CharField(max_length=255)
+    cnpj = models.CharField(max_length=18)
+    registro_ans = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return self.nome
+    
+class Servico(models.Model):
+    codigo = models.CharField(max_length=30)
+    descricao = models.CharField(max_length=200)    
+
+    def __str__(self):
+        return f"{self.codigo} - {self.descricao}"    
+
+
 class Base(models.Model):
 
     criado = models.DateTimeField('Data de criação',auto_now_add=True)
@@ -18,6 +34,8 @@ class Base(models.Model):
 
 class Convenios(Base):
     nomeconvenio = models.CharField('Nome', max_length=100, unique=True)
+    cnpj = models.CharField(max_length=18, blank=True, null=True)
+    registro_ans = models.CharField(max_length=20, blank=True, null=True)
     valor_repasse = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     slug = models.SlugField(unique=True, blank=True)
 
@@ -44,7 +62,14 @@ class Convenios(Base):
 #***********************************************************************************
 
 class Clientes(Base):
+    SEXO_CHOICES = [
+        ('1', 'Masculino'),
+        ('2', 'Feminino'),
+        ('3', 'Outro'),
+        ('4', 'Prefiro não informar'),
+    ]
     nome = models.CharField('Nome', max_length=100)
+    sexo = models.CharField('Sexo', max_length=1, choices=SEXO_CHOICES, blank=True, null=True)
     convenio = models.ForeignKey(Convenios, on_delete=models.SET_NULL, null=True, blank=True)
     carteirinha = models.CharField(max_length=50, blank=True, null=True)
     data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
@@ -124,6 +149,8 @@ class Atendimentos(Base):
     descricao = models.TextField('Descrição', blank=True, null=True)
     finalizado = models.BooleanField(default=False)
     profissional = models.ForeignKey(Usuarios, on_delete=models.CASCADE, related_name='agendamentos')
+    codigo_tuss = models.ForeignKey('Servico', on_delete=models.SET_NULL, null=True, blank=True, related_name='codigo_atendimentos')
+    descricao_tuss = models.ForeignKey('Servico', on_delete=models.SET_NULL, null=True, blank=True, related_name='descricao_atendimentos')
 
     def __str__(self):
         return f"{self.cliente.nome} - {self.data} {self.hora_inicio} - {self.hora_fim}"

@@ -68,22 +68,27 @@
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <a class="dropdown-item" href="{% url 'clientes' %}">Clientes</a>
-                  <a class="dropdown-item" href="{% url 'convenios' %}">Convênios</a>                  
+                  <a class="dropdown-item" href="{% url 'convenios' %}">Convênios</a> 
+                  <a class="dropdown-item" href="{% url 'servicos' %}">Serviços</a>                 
                 </div>
               </li>
-              &nbsp;
+              &nbsp; 
+               &nbsp;
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'agenda' %}">Agendamentos</a>
               </li>
-              &nbsp;
+              &nbsp; 
+               &nbsp;
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'atendimentos' %}">Atendimentos</a>
               </li>
-              &nbsp;
+              &nbsp; 
+               &nbsp;
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'usuarios' %}">Controle de usuários</a>
               </li>
-              &nbsp;
+              &nbsp; 
+               &nbsp;
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Financeiro
@@ -101,17 +106,22 @@
                 </div>
               </li> 
                &nbsp; 
-              <!--
+               &nbsp;
                <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Ferramentas
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{% url 'dados_empresa' %}">Dados da empresa</a>                                    
+                </div>
+                <!--
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <a class="dropdown-item" onclick="atualizarBanco('{{ csrf_token }}')">Manutenção do banco de dados</a>                                    
                 </div>
-              </li>
               -->
-              &nbsp;
+              </li>
+              &nbsp; 
+               &nbsp;
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'logout' %}">Sair</a>
               </li>
