@@ -37,6 +37,12 @@ from .models import Receita, Convenios
 from django.core.exceptions import ValidationError
 from decimal import Decimal
 from .models import Empresa, Servico
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template.loader import get_template
+import weasyprint
+
+from datetime import datetime
 
 from openpyxl import load_workbook
 from django.conf import settings
@@ -826,6 +832,8 @@ def contas_receber(request):
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         conta_destino_id = request.POST.get('conta_destino')
+        codserv = request.POST.get('codigo_servico')
+        descserv = request.POST.get('descricao_servico')
 
         # Validação básica
         if not (vencimento and cliente and receita_id and valor and conta_destino_id):
@@ -834,6 +842,8 @@ def contas_receber(request):
 
         try:
             receita = Receita.objects.get(id=receita_id)
+            codigo_servico = codserv
+            descricao_servico = descserv
         except Receita.DoesNotExist:
             messages.error(request, 'Receita inválida.')
             return redirect('contas_receber')
@@ -858,6 +868,8 @@ def contas_receber(request):
             conta.descricao = descricao
             conta.valor = valor_decimal
             conta.conta_destino = conta_destino
+            conta.codigo_servico = codigo_servico
+            conta.descricao_servico = descricao_servico
             conta.save()
             messages.success(request, 'Conta atualizada com sucesso.')
         else:
@@ -867,7 +879,9 @@ def contas_receber(request):
                 receita=receita,
                 descricao=descricao,
                 valor=valor_decimal,
-                conta_destino=conta_destino
+                conta_destino=conta_destino,
+                codigo_servico=codigo_servico,
+                descricao_servico=descricao_servico
             )
             messages.success(request, 'Conta cadastrada com sucesso.')
 
@@ -878,12 +892,13 @@ def contas_receber(request):
     data_de = request.GET.get('data_de')
     data_ate = request.GET.get('data_ate')
     filtro_cliente = request.GET.get('filtro_cliente', '')
+    servicos = Servico.objects.all()
 
     if data_de and data_ate:
         contas = contas.filter(vencimento__range=[data_de, data_ate])
 
     if filtro_cliente:
-        contas = contas.filter(cliente__icontains=filtro_cliente)    
+        contas = contas.filter(cliente__icontains=filtro_cliente)
 
     total = contas.aggregate(Sum('valor'))['valor__sum'] or 0
     clientes = ContaReceber.objects.values_list('cliente', flat=True).distinct()
@@ -893,11 +908,13 @@ def contas_receber(request):
         'clientes': clientes,
         'receitas': Receita.objects.all(),
         'bancos': Banco.objects.all(),
+        'servicos': servicos,
         'data_de': data_de,
         'data_ate': data_ate,
         'filtro_cliente': filtro_cliente,
         'total': total,
     })
+
 #***********************************************************************************************
 def entradas_monetarias(request):
     if request.method == 'POST':
@@ -907,7 +924,11 @@ def entradas_monetarias(request):
         receita_id = request.POST.get('receita')
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
-        conta_id = request.POST.get('conta')  # novo campo
+        conta_id = request.POST.get('conta')
+
+        # Novos campos
+        codigo_servico = request.POST.get('codigo_servico')
+        descricao_servico = request.POST.get('descricao_servico')
 
         # Converte valor
         try:
@@ -921,7 +942,7 @@ def entradas_monetarias(request):
 
         # Cria entrada se dados forem válidos
         if receita and conta_destino and valor_decimal:
-           if entrada_id:  # UPDATE
+            if entrada_id:  # UPDATE
                 entrada = EntradasMonetarias.objects.get(id=entrada_id)
                 entrada.vencimento = vencimento
                 entrada.cliente = cliente
@@ -929,16 +950,20 @@ def entradas_monetarias(request):
                 entrada.descricao = descricao
                 entrada.valor = valor_decimal
                 entrada.conta_destino = conta_destino
+                entrada.codigo_servico = codigo_servico
+                entrada.descricao_servico = descricao_servico
                 entrada.save()
                 messages.success(request, 'Entrada monetária alterada com sucesso.')
-           else:  # CREATE
+            else:  # CREATE
                 EntradasMonetarias.objects.create(
                     vencimento=vencimento,
                     cliente=cliente,
                     receita=receita,
                     descricao=descricao,
                     valor=valor_decimal,
-                    conta_destino=conta_destino
+                    conta_destino=conta_destino,
+                    codigo_servico=codigo_servico,
+                    descricao_servico=descricao_servico
                 )
                 messages.success(request, 'Entrada monetária cadastrada com sucesso.')
 
@@ -962,7 +987,7 @@ def entradas_monetarias(request):
 
     clientes = EntradasMonetarias.objects.values_list('cliente', flat=True).distinct()
     receitas = Receita.objects.all()
-    bancos = Banco.objects.all()  # novo
+    bancos = Banco.objects.all()
 
     return render(request, 'entradas_monetarias.html', {
         'entradas': entradas,
@@ -974,7 +999,6 @@ def entradas_monetarias(request):
         'data_de': data_de,
         'data_ate': data_ate
     })
-
 #***********************************************************************************************
 @csrf_exempt
 def saidas_monetarias(request):
@@ -1088,6 +1112,8 @@ def receber_conta(request):
         descricao = request.POST.get('descricao')
         conta_destino_id = request.POST.get('conta_destino')
         valor = request.POST.get('valor')
+        codigo_servico = request.POST.get('codigo_servico')
+        descricao_servico = request.POST.get('descricao_servico')
 
         try:
             valor_decimal = Decimal(valor.replace(',', '.'))
@@ -1108,12 +1134,86 @@ def receber_conta(request):
             cliente=cliente,
             descricao=descricao,
             valor=valor_decimal,
-            conta_destino=banco
+            conta_destino=banco,
+            codigo_servico=codigo_servico,
+            descricao_servico=descricao_servico
         )
 
         ContaReceber.objects.filter(id=id_original).delete()
         messages.success(request, 'Conta recebida com sucesso.')
         return redirect('contas_receber')
+    
+def contas_receber_pdf(request):
+    data_de = request.GET.get('data_de') or ''
+    data_ate = request.GET.get('data_ate') or ''
+    filtro_cliente = request.GET.get('filtro_cliente') or ''
+
+    contas = ContaReceber.objects.all()
+
+    if data_de:
+        try:
+            data_de_convertida = datetime.strptime(data_de, "%Y-%m-%d").date()
+            contas = contas.filter(vencimento__gte=data_de_convertida)
+        except ValueError:
+            pass  # Ignora datas inválidas
+
+    if data_ate:
+        try:
+            data_ate_convertida = datetime.strptime(data_ate, "%Y-%m-%d").date()
+            contas = contas.filter(vencimento__lte=data_ate_convertida)
+        except ValueError:
+            pass
+
+    if filtro_cliente:
+        contas = contas.filter(cliente__icontains=filtro_cliente)
+
+    total = contas.aggregate(total=Sum('valor'))['total'] or 0
+
+    template = get_template('contas_receber_pdf.html')
+    html = template.render({'contas': contas, 'total': total})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="contas_receber.pdf"'
+
+    weasyprint.HTML(string=html).write_pdf(response)
+
+    return response 
+
+def entradas_monetarias_pdf(request):
+    data_de = request.GET.get('data_de') or ''
+    data_ate = request.GET.get('data_ate') or ''
+    filtro_cliente = request.GET.get('filtro_cliente') or ''
+
+    entradas = EntradasMonetarias.objects.all()
+
+    if data_de:
+        try:
+            data_de_convertida = datetime.strptime(data_de, "%Y-%m-%d").date()
+            entradas = entradas.filter(vencimento__gte=data_de_convertida)
+        except ValueError:
+            pass
+
+    if data_ate:
+        try:
+            data_ate_convertida = datetime.strptime(data_ate, "%Y-%m-%d").date()
+            entradas = entradas.filter(vencimento__lte=data_ate_convertida)
+        except ValueError:
+            pass
+
+    if filtro_cliente:
+        entradas = entradas.filter(cliente__icontains=filtro_cliente)
+
+    total = entradas.aggregate(total=Sum('valor'))['total'] or 0
+
+    template = get_template('entradas_monetarias_pdf.html')
+    html = template.render({'entradas': entradas, 'total': total})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="entradas_monetarias.pdf"'
+
+    weasyprint.HTML(string=html).write_pdf(response)
+
+    return response
     
 
 

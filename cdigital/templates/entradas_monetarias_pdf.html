@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 8px; font-size: 12px; }
+        th { background-color: #eee; }
+    </style>
+</head>
+<body>
+    <h2>Entradas Monetárias</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Origem</th>
+                <th>Descrição</th>
+                <th>Cód. Serviço</th>
+                <th>Conta</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entrada in entradas %}
+            <tr>
+                <td>{{ entrada.vencimento|date:"d/m/Y" }}</td>
+                <td>{{ entrada.cliente }}</td>
+                <td>{{ entrada.descricao }}</td>
+                <td>{{ entrada.codigo_servico }}</td>
+                <td>{{ entrada.conta_destino.simbolo }}</td>
+                <td>R$ {{ entrada.valor|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5"><strong>Total:</strong></td>
+                <td><strong>R$ {{ total|floatformat:2 }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

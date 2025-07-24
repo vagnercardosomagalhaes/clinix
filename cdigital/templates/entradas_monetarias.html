@@ -6,9 +6,10 @@
     <meta charset="UTF-8">
     <title>Entradas Monetárias</title>
     {% bootstrap_css %}
+     <link rel="stylesheet" href="{% static 'estilo.css' %}">
 </head>
 <body>
-<div class="container mt-4">
+<div class="container mt-4" style="max-width: 1600px;">
     {% if messages %}
         <div>
             {% for message in messages %}
@@ -52,6 +53,14 @@
                 <label for="descricao" class="mr-2">Descrição:</label>
                 <input type="text" name="descricao" class="form-control" placeholder="Descrição">
             </div>
+            <div class="col">
+                <label for="codigo_servico">Código do Serviço:</label>
+                <input type="text" name="codigo_servico" id="codigo_servico" class="form-control" placeholder="Código do serviço">
+            </div>
+            <div class="col">
+                <label for="descricao_servico">Descrição do Serviço:</label>
+                <input type="text" name="descricao_servico" id="descricao_servico" class="form-control" placeholder="Descrição do serviço">
+            </div>
 
             <div class="col">
                 <label for="conta">Conta Destino:</label>
@@ -88,17 +97,22 @@
             {% endfor %}
         </datalist>
         <button class="btn btn-primary">Filtrar</button>
+        <a href="{% url 'entradas_monetarias_pdf' %}?data_de={{ data_de|default:'' }}&data_ate={{ data_ate|default:'' }}&filtro_cliente={{ filtro_cliente|default:'' }}"
+        class="btn btn-danger ml-2" target="_blank">
+             PDF
+        </a>
     </form>
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped" style="table-layout: fixed; width: 100%;">
         <thead class="thead-dark">
             <tr>
-                <th>Data</th>
-                <th>Origem</th>
-                <th>Descrição</th>
-                <th>Conta Destino</th>
-                <th>Valor</th>
-                <th>Ações</th>
+            <th style="width: 90px;">Data</th>
+            <th style="width: 100px;">Origem</th>
+            <th style="width: 220px;">Descrição</th>
+            <th style="width: 120px;">Cód. Serviço</th>
+            <th style="width: 80px;">Conta</th>
+            <th style="width: 100px;">Valor</th>
+            <th style="width: 120px;">Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -107,20 +121,24 @@
                 <td>{{ entrada.vencimento|date:"d/m/Y" }}</td>
                 <td>{{ entrada.cliente }}</td>
                 <td>{{ entrada.descricao }}</td>
+                <td>{{ entrada.codigo_servico }}</td>
+                
                 <td>{% if entrada.conta_destino %}{{ entrada.conta_destino.simbolo }}{% else %}-{% endif %}</td>
                 <td>R$ {{ entrada.valor|floatformat:2 }}</td>
                 <td>
                     <!--<a href="#" class="btn btn-sm btn-success">Confirmar</a>-->
                     <a href="#" class="btn btn-sm btn-primary editar-entrada"
-                    data-id="{{ entrada.id }}"
-                    data-vencimento="{{ entrada.vencimento|date:'Y-m-d' }}"
-                    data-cliente="{{ entrada.cliente }}"
-                    data-receita="{{ entrada.receita.id }}"
-                    data-descricao="{{ entrada.descricao }}"
-                    data-conta_destino="{{ entrada.conta_destino.id }}"
-                    data-valor="{{ entrada.valor|stringformat:'.2f' }}">
-                    Editar
-                    </a>
+                        data-id="{{ entrada.id }}"
+                        data-vencimento="{{ entrada.vencimento|date:'Y-m-d' }}"
+                        data-cliente="{{ entrada.cliente }}"
+                        data-receita="{{ entrada.receita.id }}"
+                        data-descricao="{{ entrada.descricao }}"
+                        data-conta_destino="{{ entrada.conta_destino.id }}"
+                        data-valor="{{ entrada.valor|stringformat:'.2f' }}"
+                        data-codigo_servico="{{ entrada.codigo_servico }}"
+                        data-descricao_servico="{{ entrada.descricao_servico }}">
+                        Editar
+                        </a>
                     <a href="#" class="btn btn-sm btn-danger">Excluir</a>
                 </td>
             </tr>
@@ -131,7 +149,7 @@
         <tfoot>
             <tr>
                 <td colspan="3"><strong>Total do período:</strong></td>
-                <td colspan="2"><strong>R$ {{ total|floatformat:2 }}</strong></td>
+                <td colspan="2" style="text-align: right;"><strong>R$ {{ total|floatformat:2 }}</strong></td>
             </tr>
         </tfoot>
     </table>
@@ -150,6 +168,8 @@ document.querySelectorAll('.editar-entrada').forEach(function(botao) {
         document.querySelector('input[name="descricao"]').value = this.dataset.descricao;
         document.querySelector('select[name="conta"]').value = this.dataset.conta_destino;
         document.querySelector('input[name="valor"]').value = this.dataset.valor.replace(',', '.');
+        document.querySelector('input[name="codigo_servico"]').value = this.dataset.codigo_servico || '';
+        document.querySelector('input[name="descricao_servico"]').value = this.dataset.descricao_servico || '';
 
         // Atualizar o botão
         const botaoGravar = document.getElementById('botao-gravar');

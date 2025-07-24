@@ -13,3 +13,6 @@ Passo a passo para criaçãodo banco de dados do usuario:
 ************************
 3 - No terminal, dentro do ambinete virtual, executar o srcript de criação do banco:
         python setup_banco.py
+
+**************************
+5 - Nas maquinas de usuarios, instalar o gtk3-runtime-3.24.31-2022-01-04-ts-win64, para poder gerar pdf das listagens

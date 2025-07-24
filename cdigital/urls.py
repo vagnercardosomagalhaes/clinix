@@ -68,6 +68,9 @@ urlpatterns = [
     path('servicos/editar/<int:id>/', views.editar_servico, name='editar_servico'),
     path('servicos/excluir/<int:id>/', views.excluir_servico, name='excluir_servico'),
 
+    path('contas_receber/pdf/', views.contas_receber_pdf, name='contas_receber_pdf'),
+    path('entradas_monetarias/pdf/', views.entradas_monetarias_pdf, name='entradas_monetarias_pdf'),
+
     
     
     #path('contato/', contato, name='contato'),    

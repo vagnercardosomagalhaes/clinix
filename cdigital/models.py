@@ -212,6 +212,8 @@ class ContaReceber(models.Model):
     receita = models.ForeignKey(Receita, on_delete=models.CASCADE)
     descricao = models.CharField(max_length=255, blank=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
+    codigo_servico = models.CharField(max_length=20, blank=True, null=True)
+    descricao_servico = models.CharField(max_length=180, blank=True, null=True)
     conta_destino = models.ForeignKey(Banco, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
@@ -226,7 +228,10 @@ class EntradasMonetarias(models.Model):
     descricao = models.CharField(max_length=200, blank=True)
     conta_destino = models.ForeignKey(Banco, on_delete=models.SET_NULL, null=True, blank=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
+    codigo_servico = models.CharField(max_length=20, blank=True, null=True)
+    descricao_servico = models.CharField(max_length=180, blank=True, null=True)
     recebido = models.BooleanField(default=False)
+
 
     def __str__(self):
         return f"{self.cliente} - {self.valor} em {self.vencimento}"

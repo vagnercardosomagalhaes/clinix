@@ -1,14 +1,16 @@
 {% load bootstrap4 %}
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br">    
 <head>
     <meta charset="UTF-8">
     <title>Contas a Receber</title>
     {% bootstrap_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'estilo.css' %}">
 </head>
 <body>
-<div class="container mt-4">
+<div class="container mt-4" style="max-width: 1600px;">
 {% if messages %}
     {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -47,9 +49,26 @@
                 </select>
             </div>
             <div class="col">
-                <label for="descricao">Descrição:</label>
+                <label for="descricao">Descrição da conta:</label>
                 <input type="text" name="descricao" id="descricao" class="form-control" placeholder="Descrição">
             </div>
+
+            <div class="col">
+                <label for="descricao_servico" class="mr-2">Descrição do Serviço(TUSS):</label>
+                <select name="descricao_servico" id="descricao_servico" class="form-control">
+                    <option value="">Selecione o serviço</option>
+                    {% for s in servicos %}
+                        <option value="{{ s.descricao }}" data-codigo="{{ s.codigo }}">{{ s.descricao }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col">
+                <label for="codigo_servico" class="mr-2">Código do Serviço(TUSS):</label>
+                <input type="text" name="codigo_servico" id="codigo_servico" class="form-control" placeholder="Código do serviço">
+            </div>
+            
+
             <div class="col">
                 <label for="conta_destino">Conta Destino:</label>
                 <select name="conta_destino" id="conta_destino" class="form-control" required>
@@ -87,17 +106,21 @@
         </datalist>
 
         <button class="btn btn-primary">Filtrar</button>
+        <a href="{% url 'contas_receber_pdf' %}{% if data_de or data_ate or filtro_cliente %}?data_de={{ data_de|default:'' }}&data_ate={{ data_ate|default:'' }}&filtro_cliente={{ filtro_cliente|default:'' }}{% endif %}"  target="_blank" class="btn btn-danger ml-2" title="Exportar PDF">
+            <i class="fas fa-file-pdf"></i> PDF
+        </a>
     </form>
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped" style="table-layout: fixed; width: 100%;">
         <thead class="thead-dark">
             <tr>
-                <th>Data</th>
-                <th>Devedor</th>
-                <th>Descrição</th>
-                <th>Valor</th>
-                <th>Conta Destino</th>
-                <th>Ações</th>
+            <th style="width: 90px;">Data</th>
+            <th style="width: 100px;">Origem</th>
+            <th style="width: 220px;">Descrição</th>
+            <th style="width: 120px;">Cód. Serviço</th>
+            <th style="width: 100px;">Valor</th>
+            <th style="width: 80px;">Conta</th>            
+            <th style="width: 120px;">Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -106,53 +129,63 @@
                 <td>{{ conta.vencimento|date:"d/m/Y" }}</td>
                 <td>{{ conta.cliente }}</td>
                 <td>{{ conta.descricao }}</td>
+                <td>{{ conta.codigo_servico }}</td>
+                
                 <td>R$ {{ conta.valor|floatformat:2 }}</td>
                 <td>{% if conta.conta_destino %}{{ conta.conta_destino.simbolo }}{% else %}-{% endif %}</td>
                 <td>
                     {% if conta.conta_destino %}
                     <a href="#" class="btn btn-sm btn-success receber-conta"
-                    data-id="{{ conta.id }}"
-                    data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
-                    data-receita="{{ conta.receita.id }}"
-                    data-cliente="{{ conta.cliente }}"
-                    data-descricao="{{ conta.descricao }}"
-                    data-valor="{{ conta.valor|stringformat:'.2f' }}"
-                    data-conta_destino="{{ conta.conta_destino.id }}">
-                    Receber
+                        data-id="{{ conta.id }}"
+                        data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
+                        data-receita="{{ conta.receita.id }}"
+                        data-cliente="{{ conta.cliente }}"
+                        data-descricao="{{ conta.descricao }}"
+                        data-valor="{{ conta.valor|stringformat:'.2f' }}"
+                        data-conta_destino="{% if conta.conta_destino %}{{ conta.conta_destino.id }}{% endif %}"
+                        data-codigo_servico="{{ conta.codigo_servico }}"
+                        data-descricao_servico="{{ conta.descricao_servico }}">
+                        Receber
                     </a>
                     {% else %}
                     <a href="#" class="btn btn-sm btn-success receber-conta"
-                    data-id="{{ conta.id }}"
-                    data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
-                    data-receita="{{ conta.receita.id }}"
-                    data-cliente="{{ conta.cliente }}"
-                    data-descricao="{{ conta.descricao }}"
-                    data-valor="{{ conta.valor|stringformat:'.2f' }}"
-                    data-conta_destino="">
-                    Receber
+                        data-id="{{ conta.id }}"
+                        data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
+                        data-receita="{{ conta.receita.id }}"
+                        data-cliente="{{ conta.cliente }}"
+                        data-descricao="{{ conta.descricao }}"
+                        data-valor="{{ conta.valor|stringformat:'.2f' }}"
+                        data-conta_destino="{% if conta.conta_destino %}{{ conta.conta_destino.id }}{% endif %}"
+                        data-codigo_servico="{{ conta.codigo_servico }}"
+                        data-descricao_servico="{{ conta.descricao_servico }}">
+                        Receber
                     </a>
                     {% endif %}
 
                     {% if conta.conta_destino %}
                     <a href="#" class="btn btn-sm btn-primary editar-conta"
                     data-id="{{ conta.id }}"
-                    data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
-                    data-cliente="{{ conta.cliente }}"
-                    data-receita="{{ conta.receita.id }}"
-                    data-descricao="{{ conta.descricao }}"
-                    data-valor="{{ conta.valor|stringformat:'.2f' }}"
-                    data-conta_destino="{{ conta.conta_destino.id }}">
+                        data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
+                        data-receita="{{ conta.receita.id }}"
+                        data-cliente="{{ conta.cliente }}"
+                        data-descricao="{{ conta.descricao }}"
+                        data-valor="{{ conta.valor|stringformat:'.2f' }}"
+                        data-conta_destino="{% if conta.conta_destino %}{{ conta.conta_destino.id }}{% endif %}"
+                        data-codigo_servico="{{ conta.codigo_servico }}"
+                        data-descricao_servico="{{ conta.descricao_servico }}">
                     Editar
                     </a>
                     {% else %}
                     <a href="#" class="btn btn-sm btn-primary editar-conta"
                     data-id="{{ conta.id }}"
-                    data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
-                    data-cliente="{{ conta.cliente }}"
-                    data-receita="{{ conta.receita.id }}"
-                    data-descricao="{{ conta.descricao }}"
-                    data-valor="{{ conta.valor|stringformat:'.2f' }}"
-                    data-conta_destino="{{ conta.conta_destino.id }}">
+                        data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
+                        data-receita="{{ conta.receita.id }}"
+                        data-cliente="{{ conta.cliente }}"
+                        data-descricao="{{ conta.descricao }}"
+                        data-valor="{{ conta.valor|stringformat:'.2f' }}"
+                        data-conta_destino="{% if conta.conta_destino %}{{ conta.conta_destino.id }}{% endif %}"
+                        data-codigo_servico="{{ conta.codigo_servico }}"
+                        data-descricao_servico="{{ conta.descricao_servico }}">
                     Editar
                     </a>
                     {% endif %}
@@ -166,7 +199,7 @@
         <tfoot>
             <tr>
                 <td colspan="3"><strong>Total do período:</strong></td>
-                <td colspan="3"><strong>R$ {{ total|floatformat:2 }}</strong></td>
+                <td colspan="3" style="text-align: right;"><strong>R$ {{ total|floatformat:2 }}</strong></td>
             </tr>
         </tfoot>
     </table>
@@ -193,6 +226,8 @@ document.querySelectorAll('.editar-conta').forEach(function(botao) {
         document.getElementById('descricao').value = this.dataset.descricao;
         document.getElementById('valor').value = this.dataset.valor.replace(',', '.');
         document.getElementById('conta_destino').value = this.dataset.conta_destino;
+        document.getElementById('codigo_servico').value = this.dataset.codigo_servico;
+        document.getElementById('descricao_servico').value = this.dataset.descricao_servico;
 
         // Muda botão para "Alterar"
         const botaoGravar = document.getElementById('botao-gravar');
@@ -232,8 +267,10 @@ document.querySelectorAll('.receber-conta').forEach(function(botao) {
                 'cliente': this.dataset.cliente,
                 'descricao': this.dataset.descricao,
                 'valor': this.dataset.valor,
-                'conta_destino': this.dataset.conta_destino,
-                'csrfmiddlewaretoken': csrfToken
+                'conta_destino': this.dataset.conta_destino,               
+                'codigo_servico': this.dataset.codigo_servico,
+                'descricao_servico': this.dataset.descricao_servico,
+                'csrfmiddlewaretoken': csrfToken,
             };
 
             for (let key in fields) {
@@ -283,5 +320,17 @@ document.querySelectorAll('.receber-conta').forEach(function(botao) {
     });
 </script>
 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const descricaoSelect = document.getElementById('descricao_servico');
+    const codigoInput = document.getElementById('codigo_servico');
+
+    descricaoSelect.addEventListener('change', function() {
+      const selectedOption = descricaoSelect.options[descricaoSelect.selectedIndex];
+      const codigo = selectedOption.getAttribute('data-codigo');
+      codigoInput.value = codigo || '';
+    });
+  });
+</script>
 </body>
 </html>
