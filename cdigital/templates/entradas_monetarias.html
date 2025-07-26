@@ -98,9 +98,7 @@
         </datalist>
         <button class="btn btn-primary">Filtrar</button>
         <a href="{% url 'entradas_monetarias_pdf' %}?data_de={{ data_de|default:'' }}&data_ate={{ data_ate|default:'' }}&filtro_cliente={{ filtro_cliente|default:'' }}"
-        class="btn btn-danger ml-2" target="_blank">
-             PDF
-        </a>
+        class="btn btn-danger ml-2" target="_blank">PDF</a>
     </form>
 
     <table class="table table-bordered table-striped" style="table-layout: fixed; width: 100%;">

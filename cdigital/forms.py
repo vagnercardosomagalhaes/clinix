@@ -40,8 +40,9 @@ class Clientesform(forms.ModelForm):
     class Meta:
         model = Clientes
         #fields = ['nome', 'data_nascimento', 'cpf', 'email', 'telefone', 'endereco', 'bairro', 'cidade', 'estado', 'cep']
-        exclude = ['slug']
+        fields = '__all__'
         widgets = {
+            'slug': forms.HiddenInput(),
             'sexo': forms.Select(attrs={'class': 'form-control'}),
             'convenio': forms.Select(attrs={'class': 'form-control'}),
             'carteirinha': forms.TextInput(attrs={'class': 'form-control'}),
@@ -53,7 +54,7 @@ class Clientesform(forms.ModelForm):
             'cidade': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite sua cidade'}),
             'estado': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu estado'}),
             'cep': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu CEP'}),
-            'slug': forms.HiddenInput()
+            
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

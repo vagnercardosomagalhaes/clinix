@@ -7,6 +7,37 @@
     <title>Saídas Monetárias</title>
     {% bootstrap_css %}
      <link rel="stylesheet" href="{% static 'estilo.css' %}">
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+     <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #print-header,
+            #print-header *,
+            #print-area,
+            #print-area * {
+                visibility: visible;
+            }
+
+            #print-header {
+                display: block !important;
+                position: relative;
+                margin-bottom: 20px;
+            }
+
+            #print-area {
+                position: relative;
+                width: 100%;
+            }
+
+            /* Esconde botões, formulários e inputs */
+            form, .btn, nav, input, select, label, .form-control {
+                display: none !important;
+            }
+        }
+        </style>
 </head>
 <body>
 <div class="container mt-4">
@@ -79,57 +110,69 @@
             {% endfor %}
         </datalist>
         <button class="btn btn-primary">Filtrar</button>
+        &ensp;
+        <button type="button" class="btn btn-warning" onclick="window.print()" title="Imprimir">
+            <i class="bi bi-printer"></i>
+        </button>
     </form>
-
-    <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
-            <tr>
-                <th>Data</th>
-                <th>Credor</th>
-                <th>Descrição</th>
-                <th>Valor</th>
-                <th>Conta Origem</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for saida in saidas %}
-            <tr>
-                <td>{{ saida.vencimento|date:"d/m/Y" }}</td>
-                <td>{{ saida.credor }}</td>
-                <td>{{ saida.descricao }}</td>
-                <td>R$ {{ saida.valor|floatformat:2 }}</td>
-                <td>
-                    {% if saida.conta_origem %}
-                        {{ saida.conta_origem.simbolo }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-                <td>
-                   <!-- <a href="#" class="btn btn-sm btn-success">Pagar</a> -->
-                    <a href="#" class="btn btn-sm btn-primary editar-saida"
-                        data-id="{{ saida.id }}"
-                        data-vencimento="{{ saida.vencimento|date:'Y-m-d' }}"
-                        data-credor="{{ saida.credor }}"
-                        data-despesa="{{ saida.despesa.id }}"
-                        data-descricao="{{ saida.descricao }}"
-                        data-valor="{{ saida.valor|stringformat:'.2f' }}"
-                        data-conta_origem="{% if saida.conta_origem %}{{ saida.conta_origem.id }}{% else %}{% endif %}">Editar</a>
-                    <a href="#" class="btn btn-sm btn-danger">Excluir</a>
-                </td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="6">Nenhuma saída encontrada.</td></tr>
-        {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="4"><strong>Total do período:</strong></td>
-                <td colspan="2"><strong>R$ {{ total|floatformat:2 }}</strong></td>
-            </tr>
-        </tfoot>
-    </table>
+    <div id="print-header" style="display: none;">
+        <h4 class="mt-4">Listagem de Contas a Pagar</h4>
+        <p>
+            <strong>Período:</strong> {{ data_de|default:"-" }} até {{ data_ate|default:"-" }}<br>
+            <strong>Credor:</strong> {{ filtro_credor|default:"Todos" }}
+        </p>
+    </div>
+    <div id="print-area">
+        <table class="table table-bordered table-striped" style="table-layout: fixed; width: 100%;">
+            <thead class="thead-dark">
+                <tr>
+                    <th style="width: 90px;">Data</th>
+                    <th style="width: 100px;">Credor</th>
+                    <th style="width: 180px;">Descrição</th>
+                    <th style="width: 70px;">Valor</th>
+                    <th style="width: 50px;">Conta</th>
+                    <th style="width: 120px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for saida in saidas %}
+                <tr>
+                    <td>{{ saida.vencimento|date:"d/m/Y" }}</td>
+                    <td>{{ saida.credor }}</td>
+                    <td>{{ saida.descricao }}</td>
+                    <td>R$ {{ saida.valor|floatformat:2 }}</td>
+                    <td>
+                        {% if saida.conta_origem %}
+                            {{ saida.conta_origem.simbolo }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                    <!-- <a href="#" class="btn btn-sm btn-success">Pagar</a> -->
+                        <a href="#" class="btn btn-sm btn-primary editar-saida"
+                            data-id="{{ saida.id }}"
+                            data-vencimento="{{ saida.vencimento|date:'Y-m-d' }}"
+                            data-credor="{{ saida.credor }}"
+                            data-despesa="{{ saida.despesa.id }}"
+                            data-descricao="{{ saida.descricao }}"
+                            data-valor="{{ saida.valor|stringformat:'.2f' }}"
+                            data-conta_origem="{% if saida.conta_origem %}{{ saida.conta_origem.id }}{% else %}{% endif %}">Editar</a>
+                        <a href="#" class="btn btn-sm btn-danger">Excluir</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">Nenhuma saída encontrada.</td></tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4"><strong>Total do período:</strong></td>
+                    <td colspan="2"><strong>R$ {{ total|floatformat:2 }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 </div>
 <script>
     document.querySelectorAll('.editar-saida').forEach(function(botao) {

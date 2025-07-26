@@ -11,6 +11,13 @@
 </head>
 <body>
     <h2>Entradas Monetárias</h2>
+    <p>
+        <strong>Período:</strong>
+        {% if data_de %}{{ data_de|date:"d/m/Y" }}{% else %}...{% endif %}
+        até
+        {% if data_ate %}{{ data_ate|date:"d/m/Y" }}{% else %}...{% endif %}<br>
+        <strong>Devedor:</strong> {{ filtro_cliente|default:"Todos" }}
+    </p>
     <table>
         <thead>
             <tr>

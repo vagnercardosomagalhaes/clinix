@@ -18,13 +18,14 @@
                 {% csrf_token %}
                 {% bootstrap_form form %}
                 <div class="row">
-                    <div class="col d-flex">
+                    
                         <button type="submit" class="btn btn-primary ms-2" role="button">Cadastrar</button>
                         &ensp;
-                        <a href="{% url 'lista_clientes' %}" class="btn btn-warning ms-2" role="button">Ver Clientes Cadastrados</a>
+                        <a href="{% url 'lista_clientes' %}" class="btn btn-warning ms-2" role="button">Listar Clientes</a>
                         &ensp; 
-                        <a href="{% url 'index' %}" class="btn btn-primary ms-2">Retornar ao Início</a>
-                    </div>
+                        <a href="{% url 'index' %}" class="btn btn-primary">Retornar</a>
+                        &ensp;
+                    
                                        
                     <div class="col d-flex"></div>
                     <div class="col d-flex"></div>

@@ -1,3 +1,5 @@
+{% load bootstrap4 %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -10,8 +12,16 @@
         .total { text-align: right; font-weight: bold; }
     </style>
 </head>
-<body>
+<body>    
     <h2>Contas a Receber</h2>
+    <p>
+    <strong>Período:</strong> 
+        {% if data_de %}{{ data_de|date:"d/m/Y" }}{% else %}...{% endif %} 
+        até 
+        {% if data_ate %}{{ data_ate|date:"d/m/Y" }}{% else %}...{% endif %}<br>
+
+    <strong>Credor:</strong> {{ filtro_cliente|default:"Todos" }}
+</p>
     <table>
         <thead>
             <tr>

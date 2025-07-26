@@ -68,6 +68,7 @@ class Clientes(Base):
         ('3', 'Outro'),
         ('4', 'Prefiro não informar'),
     ]
+    
     nome = models.CharField('Nome', max_length=100)
     sexo = models.CharField('Sexo', max_length=1, choices=SEXO_CHOICES, blank=True, null=True)
     convenio = models.ForeignKey(Convenios, on_delete=models.SET_NULL, null=True, blank=True)

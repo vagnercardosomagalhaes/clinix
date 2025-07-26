@@ -216,6 +216,20 @@
   }, 4000); // 4 segundos
 </script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filtroForm = document.querySelector('form[method="get"]');
+    filtroForm.addEventListener('submit', function(e) {
+        const dataDe = document.querySelector('input[name="data_de"]').value;
+        const dataAte = document.querySelector('input[name="data_ate"]').value;
+
+        if (!dataDe || !dataAte) {
+            alert('Preencha os dois campos de data para realizar o filtro.');
+            e.preventDefault();  // Impede o envio do formulário
+        }
+    });
+});
+</script>
+<script>
 document.querySelectorAll('.editar-conta').forEach(function(botao) {
     botao.addEventListener('click', function(e) {
         e.preventDefault();
@@ -287,39 +301,6 @@ document.querySelectorAll('.receber-conta').forEach(function(botao) {
     });
 });
 </script>
-<!--
-<script>
-    document.querySelectorAll('.editar-conta').forEach(function(botao) {
-        botao.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            document.querySelector('input[name="vencimento"]').value = this.dataset.vencimento;
-            document.querySelector('select[name="Cliente"]').value = this.dataset.cliente;
-            document.querySelector('select[name="receita"]').value = this.dataset.receita;
-            document.querySelector('input[name="descricao"]').value = this.dataset.descricao;
-            document.querySelector('input[name="valor"]').value = this.dataset.valor.replace(',', '.');
-            document.querySelector('select[name="conta_destino"]').value = this.dataset.conta_destino;
-
-            // Altera texto do botão
-            const botaoGravar = document.querySelector('form button[type="submit"]');
-            botaoGravar.textContent = 'Alterar';
-            botaoGravar.classList.remove('btn-success');
-            botaoGravar.classList.add('btn-warning');
-
-            // Cria input hidden com ID
-            let inputHidden = document.getElementById("id_conta");
-            if (!inputHidden) {
-                inputHidden = document.createElement("input");
-                inputHidden.type = "hidden";
-                inputHidden.name = "id";
-                inputHidden.id = "id_conta";
-                botao.closest("form").appendChild(inputHidden);
-            }
-            inputHidden.value = this.dataset.id;
-        });
-    });
-</script>
--->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const descricaoSelect = document.getElementById('descricao_servico');
@@ -332,5 +313,6 @@ document.querySelectorAll('.receber-conta').forEach(function(botao) {
     });
   });
 </script>
+
 </body>
 </html>

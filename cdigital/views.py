@@ -490,6 +490,7 @@ def editar_atendimento(request, agenda_id):
                     receita=Receita.objects.filter(codigo='01').first(),
                     descricao=f'Consulta: {agendamento.cliente.nome} {agendamento.cliente.carteirinha}',
                     valor=convenio.valor_repasse,
+                    codigo_servico=codigo_tuss.codigo if codigo_tuss else None,
                     conta_destino=None
                 )
 
@@ -891,7 +892,7 @@ def contas_receber(request):
     contas = ContaReceber.objects.all().order_by('-vencimento')
     data_de = request.GET.get('data_de')
     data_ate = request.GET.get('data_ate')
-    filtro_cliente = request.GET.get('filtro_cliente', '')
+    filtro_cliente = request.GET.get('filtro_cliente')
     servicos = Servico.objects.all()
 
     if data_de and data_ate:
@@ -1144,59 +1145,71 @@ def receber_conta(request):
         return redirect('contas_receber')
     
 def contas_receber_pdf(request):
-    data_de = request.GET.get('data_de') or ''
-    data_ate = request.GET.get('data_ate') or ''
+    data_de_str = request.GET.get('data_de') or ''
+    data_ate_str = request.GET.get('data_ate') or ''
     filtro_cliente = request.GET.get('filtro_cliente') or ''
 
-    contas = ContaReceber.objects.all()
+    contas = ContaReceber.objects.all().order_by('-vencimento')
 
-    if data_de:
+    data_de_obj = None
+    data_ate_obj = None
+
+    if data_de_str:
         try:
-            data_de_convertida = datetime.strptime(data_de, "%Y-%m-%d").date()
-            contas = contas.filter(vencimento__gte=data_de_convertida)
+            data_de_obj = datetime.strptime(data_de_str, "%Y-%m-%d").date()
+            contas = contas.filter(vencimento__gte=data_de_obj)
         except ValueError:
-            pass  # Ignora datas inválidas
+            pass
 
-    if data_ate:
+    if data_ate_str:
         try:
-            data_ate_convertida = datetime.strptime(data_ate, "%Y-%m-%d").date()
-            contas = contas.filter(vencimento__lte=data_ate_convertida)
+            data_ate_obj = datetime.strptime(data_ate_str, "%Y-%m-%d").date()
+            contas = contas.filter(vencimento__lte=data_ate_obj)
         except ValueError:
             pass
 
     if filtro_cliente:
         contas = contas.filter(cliente__icontains=filtro_cliente)
 
-    total = contas.aggregate(total=Sum('valor'))['total'] or 0
+    total = contas.aggregate(Sum('valor'))['valor__sum'] or 0
 
     template = get_template('contas_receber_pdf.html')
-    html = template.render({'contas': contas, 'total': total})
+    html = template.render({
+        'contas': contas,
+        'total': total,
+        'data_de': data_de_obj,
+        'data_ate': data_ate_obj,
+        'filtro_cliente': filtro_cliente,
+    })
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="contas_receber.pdf"'
 
     weasyprint.HTML(string=html).write_pdf(response)
 
-    return response 
+    return response
 
 def entradas_monetarias_pdf(request):
-    data_de = request.GET.get('data_de') or ''
-    data_ate = request.GET.get('data_ate') or ''
+    data_de_str = request.GET.get('data_de') or ''
+    data_ate_str = request.GET.get('data_ate') or ''
     filtro_cliente = request.GET.get('filtro_cliente') or ''
 
-    entradas = EntradasMonetarias.objects.all()
+    entradas = EntradasMonetarias.objects.all().order_by('-vencimento')
 
-    if data_de:
+    data_de_obj = None
+    data_ate_obj = None
+
+    if data_de_str:
         try:
-            data_de_convertida = datetime.strptime(data_de, "%Y-%m-%d").date()
-            entradas = entradas.filter(vencimento__gte=data_de_convertida)
+            data_de_obj = datetime.strptime(data_de_str, "%Y-%m-%d").date()
+            entradas = entradas.filter(vencimento__gte=data_de_obj)
         except ValueError:
             pass
 
-    if data_ate:
+    if data_ate_str:
         try:
-            data_ate_convertida = datetime.strptime(data_ate, "%Y-%m-%d").date()
-            entradas = entradas.filter(vencimento__lte=data_ate_convertida)
+            data_ate_obj = datetime.strptime(data_ate_str, "%Y-%m-%d").date()
+            entradas = entradas.filter(vencimento__lte=data_ate_obj)
         except ValueError:
             pass
 
@@ -1206,7 +1219,13 @@ def entradas_monetarias_pdf(request):
     total = entradas.aggregate(total=Sum('valor'))['total'] or 0
 
     template = get_template('entradas_monetarias_pdf.html')
-    html = template.render({'entradas': entradas, 'total': total})
+    html = template.render({
+        'entradas': entradas,
+        'total': total,
+        'data_de': data_de_obj,
+        'data_ate': data_ate_obj,
+        'filtro_cliente': filtro_cliente,
+    })
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="entradas_monetarias.pdf"'
