@@ -72,10 +72,11 @@ class Clientes(Base):
     nome = models.CharField('Nome', max_length=100)
     sexo = models.CharField('Sexo', max_length=1, choices=SEXO_CHOICES, blank=True, null=True)
     convenio = models.ForeignKey(Convenios, on_delete=models.SET_NULL, null=True, blank=True)
+    
     carteirinha = models.CharField(max_length=50, blank=True, null=True)
     data_nascimento = models.DateField('Data de Nascimento', blank=True, null=True)
     cpf = models.CharField('CPF', max_length=14, unique=True, blank=True, null=True)
-    email = models.EmailField('Email', unique=True)
+    email = models.EmailField('Email', null=True, blank=True)
     telefone = models.CharField('Telefone', max_length=15, blank=True, null=True)
     endereco = models.CharField('Endereço', max_length=255, blank=True, null=True)
     bairro = models.CharField('Bairro', max_length=100, blank=True, null=True)

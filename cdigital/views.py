@@ -39,8 +39,10 @@ from decimal import Decimal
 from .models import Empresa, Servico
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 import weasyprint
+from weasyprint import HTML
+from django.utils.text import slugify
 
 from datetime import datetime
 
@@ -188,6 +190,11 @@ def atualizar_banco(request):
 def index(request):
     login_ok = False
 
+    # Limpa mensagem "Acesso não permitido" após logout
+    for message in messages.get_messages(request):
+        if message.message != 'Acesso não permitido.':
+            messages.add_message(request, message.level, message.message)
+
     # FORÇA DESLOGAR do Django auth (caso esteja autenticado)
     request.session.pop('_auth_user_id', None)
     request.session.pop('_auth_user_backend', None)
@@ -236,16 +243,25 @@ def index(request):
             except Usuarios.DoesNotExist:
                 messages.error(request, 'Usuário não encontrado.')
 
-    elif request.session.get('usuario_id') is not None:
+    
+    # Se já estiver logado via sessão
+    if request.session.get('usuario_id') is not None:
         login_ok = True
 
-    return render(request, 'index.html', {'login_ok': login_ok})     
+    return render(request, 'index.html', {'login_ok': login_ok})
+
+    #elif request.session.get('usuario_id') is not None:
+    #    login_ok = True
+
+      
+
+    #return render(request, 'index.html', {'login_ok': login_ok})     
                                                                     
 #*******************************************************************************
 
 def logout_view(request):
-    request.session.flush()  # remove tudo da sessão, inclusive chaves do Django auth
-    return redirect('/')
+    request.session.flush()  # limpa toda a sessão
+    return redirect('index')  # redireciona para o index sem mensagens
 
 #*******************************************************************************
 def convenios(request):
@@ -538,8 +554,9 @@ def excluir_atendimento(request, atendimento_id):
 #********************************************************************************
 def agenda(request):
     form = AgendaForm()
-    data_filtro = request.GET.get('data')  # captura a data enviada no filtro
-    agenda_lista = Agenda.objects.all().order_by('data', 'hora_inicio')
+    data_filtro = request.GET.get('data') or date.today().isoformat()
+    # data_filtro = request.GET.get('data')  # captura a data enviada no filtro
+    agenda_lista = Agenda.objects.all().order_by('-data', '-hora_inicio')
 
     profissionais = Usuarios.objects.filter(is_medico=True)
     convenios = Convenios.objects.all()
@@ -550,18 +567,35 @@ def agenda(request):
         #agenda_lista = Agenda.objects.filter(data=date.today()).order_by('hora_inicio')
 
     if request.method == 'POST':
+        cliente_nome = request.POST.get('cliente_nome', '').strip()
+
+        # Se não foi digitado nada
+        if not cliente_nome:
+            messages.error(request, 'Informe o nome do cliente.')
+            return redirect('agenda')
+
+        # Verifica se já existe cliente com mesmo nome
+        cliente = Clientes.objects.filter(nome__iexact=cliente_nome).first()
+
+        # Se não existir, cria novo cliente com nome e email genérico
+        if not cliente:
+            email_falso = f"{slugify(cliente_nome)}@exemplo.com"
+            cliente = Clientes.objects.create(nome=cliente_nome, email=email_falso)
+
+        # Remove o campo cliente do form antes da validação
         form = AgendaForm(request.POST)
+        form.fields.pop('cliente', None)
+
         if form.is_valid():
-            form.save()
+            agendamento = form.save(commit=False)
+            agendamento.cliente = cliente
+            agendamento.save()
             messages.success(request, 'Agendamento realizado com sucesso!')
             return redirect('agenda')
         else:
+            print(form.errors)
             messages.error(request, 'Erro ao realizar agendamento. Verifique os dados e tente novamente.')
-            
-    else:
-        form = AgendaForm()
 
-   
     context = {
         'form': form,
         'agenda_lista': agenda_lista,
@@ -607,13 +641,18 @@ def excluir_agenda(request, id):
 #*******************************************************************************
 
 def usuarios(request):
+    # Verificação de permissão
+    if not request.session.get('usuario_is_admin', False):
+        messages.error(request, 'Acesso não permitido.')
+        return redirect('acesso_negado')
+
     if request.method == 'POST':
         form = UsuariosForm(request.POST)
         if form.is_valid():
             usuario = form.save(commit=False)
-            # criptografa a senha antes de salvar
-            #usuario.senha = make_password(usuario.senha)
-            usuario.save()            
+            # Se quiser criptografar senha, descomente a linha abaixo
+            # usuario.senha = make_password(usuario.senha)
+            usuario.save()
             messages.success(request, 'Usuário cadastrado com sucesso!')
             return redirect('usuarios')
         else:
@@ -627,6 +666,11 @@ def usuarios(request):
         'form': form,
         'usuarios_lista': usuarios_lista,
     })
+#---------------------------------------------------------------------------
+def acesso_negado(request):
+    return render(request, 'acesso_negado.html')
+
+
 
 #*************************************************************************
 def editar_usuario(request, pk):
@@ -1082,6 +1126,48 @@ def saidas_monetarias(request):
         'total': total,
     })
 
+def saidas_monetarias_pdf(request):
+    data_de = request.GET.get('data_de')
+    data_ate = request.GET.get('data_ate')
+    filtro_credor = request.GET.get('filtro_credor', '').strip()
+
+    # Conversão segura das datas
+    try:
+        data_inicio = datetime.strptime(data_de, '%Y-%m-%d').date() if data_de else None
+        data_fim = datetime.strptime(data_ate, '%Y-%m-%d').date() if data_ate else None
+    except ValueError:
+        data_inicio = data_fim = None
+
+    saidas = SaidasMonetarias.objects.all()
+
+    if data_inicio:
+        saidas = saidas.filter(data__gte=data_inicio)
+    if data_fim:
+        saidas = saidas.filter(data__lte=data_fim)
+    if filtro_credor:
+        saidas = saidas.filter(credor__icontains=filtro_credor)
+
+    total = sum([s.valor for s in saidas])
+
+    html_string = render_to_string('saidas_monetarias_pdf.html', {
+        'saidas': saidas,
+        'data_de': data_de,
+        'data_ate': data_ate,
+        'filtro_credor': filtro_credor,
+        'total': total,
+    })
+
+    html = HTML(string=html_string)
+    pdf = html.write_pdf()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="saidas_monetarias.pdf"'
+    return response
+
+
+
+
+
 def pagar_conta(request, conta_id):
     conta = get_object_or_404(ContaPagar, id=conta_id)
 
@@ -1229,6 +1315,38 @@ def entradas_monetarias_pdf(request):
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="entradas_monetarias.pdf"'
+
+    weasyprint.HTML(string=html).write_pdf(response)
+
+    return response
+
+def contas_pagar_pdf(request):
+    data_de = request.GET.get("data_de")
+    data_ate = request.GET.get("data_ate")
+    filtro_credor = request.GET.get("filtro_credor")
+
+    contas = ContaPagar.objects.all()
+
+    if data_de:
+        contas = contas.filter(vencimento__gte=data_de)
+    if data_ate:
+        contas = contas.filter(vencimento__lte=data_ate)
+    if filtro_credor:
+        contas = contas.filter(credor__icontains=filtro_credor)
+
+    total = contas.aggregate(Sum('valor'))['valor__sum'] or 0
+
+    template = get_template("contas_pagar_pdf.html")
+    html = template.render({
+        "contas": contas,
+        "data_de": data_de,
+        "data_ate": data_ate,
+        "filtro_credor": filtro_credor or "Todos",
+        "total": total,
+    })
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="contas_a_pagar.pdf"'
 
     weasyprint.HTML(string=html).write_pdf(response)
 

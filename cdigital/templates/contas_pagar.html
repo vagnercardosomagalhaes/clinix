@@ -51,8 +51,9 @@
     {% endfor %}
   </div>
 {% endif %}    
-<div class="container mt-4">
-    <h3>Cadastro de Contas a Pagar</h3>
+<div class="container mt-4" style="max-width: 1200px;">
+    <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
+    <h3>Controle de Contas a Pagar</h3>
 
     <form method="post" action="{% url 'contas_pagar' %}" class="mb-4">
         {% csrf_token %}
@@ -125,6 +126,11 @@
         <button type="button" class="btn btn-warning" onclick="window.print()" title="Imprimir">
             <i class="bi bi-printer"></i>
         </button>
+        &ensp;
+        <a href="{% url 'contas_pagar_pdf' %}?data_de={{ data_de }}&data_ate={{ data_ate }}&filtro_credor={{ filtro_credor }}"
+        class="btn btn-danger" title="Gerar PDF" target="_blank">
+        <i class="bi bi-file-earmark-pdf-fill">PDF</i>
+        </a>
     </form>
     <div id="print-header" style="display: none;">
         <h4 class="mt-4">Listagem de Contas a Pagar</h4>

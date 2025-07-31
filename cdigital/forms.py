@@ -43,23 +43,24 @@ class Clientesform(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'slug': forms.HiddenInput(),
-            'sexo': forms.Select(attrs={'class': 'form-control'}),
-            'convenio': forms.Select(attrs={'class': 'form-control'}),
-            'carteirinha': forms.TextInput(attrs={'class': 'form-control'}),
+            'sexo': forms.Select(attrs={'class': 'form-control campo-sexo'}),
+            'convenio': forms.Select(attrs={'class': 'form-control campo-convenio'}),
+            'carteirinha': forms.TextInput(attrs={'class': 'form-control campo-carteirinha'}),
             'data_nascimento': forms.DateInput(attrs={'type': 'date','class': 'form-control input-medio'},format='%Y-%m-%d'),
-            'email': forms.EmailInput(attrs={'class': 'form-control','placeholder': 'Digite seu email'}),
-            'telefone': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu telefone'}),
-            'endereco': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu endereço'}),
-            'bairro': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu bairro'}),
-            'cidade': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite sua cidade'}),
-            'estado': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu estado'}),
-            'cep': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Digite seu CEP'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control campo-email','placeholder': 'Digite seu email'}),
+            'telefone': forms.TextInput(attrs={'class': 'form-control campo-telefone1','placeholder': 'Digite seu telefone'}),
+            'endereco': forms.TextInput(attrs={'class': 'form-control campo-endereco','placeholder': 'Digite seu endereço'}),
+            'bairro': forms.TextInput(attrs={'class': 'form-control campo-bairro','placeholder': 'Digite seu bairro'}),
+            'cidade': forms.TextInput(attrs={'class': 'form-control campo-cidade','placeholder': 'Digite sua cidade'}),
+            'estado': forms.TextInput(attrs={'class': 'form-control campo-estado','placeholder': 'Digite seu estado'}),
+            'cep': forms.TextInput(attrs={'class': 'form-control campo-cep','placeholder': 'Digite seu CEP'}),
             
         }
+         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.data_nascimento:
-            self.initial['data_nascimento'] = self.instance.data_nascimento.strftime('%Y-%m-%d')    
+            self.initial['data_nascimento'] = self.instance.data_nascimento.strftime('%Y-%m-%d')      
 
 class UsuariosForm(forms.ModelForm):
     senha2 = forms.CharField(

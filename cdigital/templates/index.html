@@ -68,8 +68,12 @@
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <a class="dropdown-item" href="{% url 'clientes' %}">Clientes</a>
-                  <a class="dropdown-item" href="{% url 'convenios' %}">Convênios</a> 
-                  <a class="dropdown-item" href="{% url 'servicos' %}">Serviços</a>                 
+                  <a class="dropdown-item" href="{% url 'convenios' %}">Planos de saúde</a> 
+                  <a class="dropdown-item" href="{% url 'servicos' %}">Serviços</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="{% url 'despesas' %}">Códigos de despesas</a>
+                  <a class="dropdown-item" href="{% url 'receitas' %}">Códigos de receitas</a>
+                  <a class="dropdown-item" href="{% url 'bancos' %}">Contas monetárias</a>                                   
                 </div>
               </li>
               &nbsp; 
@@ -85,7 +89,11 @@
               &nbsp; 
                &nbsp;
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'usuarios' %}">Controle de usuários</a>
+                 {% if request.session.usuario_is_admin %}
+                 <li class="nav-item">
+                  <a class="nav-link" href="{% url 'usuarios' %}">Controle de usuários</a>
+                 </li> 
+                 {% endif %} 
               </li>
               &nbsp; 
                &nbsp;
@@ -94,10 +102,7 @@
                   Financeiro
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <a class="dropdown-item" href="{% url 'despesas' %}">Códigos de despesas</a>
-                  <a class="dropdown-item" href="{% url 'receitas' %}">Códigos de receitas</a>
-                  <a class="dropdown-item" href="{% url 'bancos' %}">Contas monetárias</a>
-                  <div class="dropdown-divider"></div>
+                  
                   <a class="dropdown-item" href="{% url 'contas_pagar' %}">Contas a pagar</a>
                   <a class="dropdown-item" href="{% url 'contas_receber' %}">Contas a Receber</a>
                   <div class="dropdown-divider"></div>
@@ -145,7 +150,7 @@
       -->
 
     </div>
-    {% if request.session.usuario_admin %}
+    {% if request.session.usuario_is_admin %}
       <a href="{% url 'usuarios' %}">CONTROLE DE USUÁRIOS</a>
       <a href="{% url 'atendimentos' %}">ATENDIMENTOS</a>
     {% endif %}

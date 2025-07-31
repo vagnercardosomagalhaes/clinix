@@ -70,5 +70,11 @@
 </div>
 
 {% bootstrap_javascript jquery='full' %}
+<script> // Alterando o label dos campos
+    document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('label[for="id_codigo"]').textContent = "Código do Serviço"; 
+    document.querySelector('label[for="id_descricao"]').textContent = "Descrição do Serviço";   
+  });
+</script>
 </body>
 </html>

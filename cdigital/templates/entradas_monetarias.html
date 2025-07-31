@@ -1,5 +1,6 @@
 {% load bootstrap4 %}
 {% load static %}
+{% now "Y-m-d" as today %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -9,7 +10,7 @@
      <link rel="stylesheet" href="{% static 'estilo.css' %}">
 </head>
 <body>
-<div class="container mt-4" style="max-width: 1600px;">
+<div class="container mt-4" style="max-width: 1280px;">
     {% if messages %}
         <div>
             {% for message in messages %}
@@ -22,9 +23,13 @@
             {% endfor %}
         </div>
     {% endif %}
-    <h3>Cadastro de Entradas Monetárias</h3>
+    <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
+    <h3>Controle de Entradas Monetárias</h3>
 
-    <form method="post" action="{% url 'entradas_monetarias' %}" class="mb-4">
+    <form method="post" action="{% url 'entradas_monetarias' %}" class="form">
+        {% if entrada %}
+            <input type="hidden" name="id" value="{{ entrada.id }}">
+        {% endif %}
         {% csrf_token %}
         <div class="form-group">
             <div class="col">
@@ -32,7 +37,7 @@
                 <input type="date" name="vencimento" style="width: 150px;" class="form-control" required>
             </div>
             <div class="col">
-                <label for="cliente" class="mr-2">Origem:</label>
+                <label for="cliente" class="mr-2">Devedor:</label>
                 <select name="Cliente" class="form-control" required>
                     <option value="">Selecione ou digite</option>
                     {% for c in clientes %}
@@ -84,11 +89,13 @@
         </div>
     </form>
 
-    <form method="get" class="form-inline mb-3">
+    <form method="get" class="form-inline mb-2">
         <label for="data_de" class="mr-2">Data de:</label>
-        <input type="date" name="data_de" class="form-control mr-2" value="{{ data_de }}">
+        <input type="date" name="data_de" class="form-control" value="{{ data_de|default:today }}">
+        &ensp;
         <label for="data_ate" class="mr-2">Até:</label>
-        <input type="date" name="data_ate" class="form-control mr-2" value="{{ data_ate }}">
+        <input type="date" name="data_ate" class="form-control" value="{{ data_ate|default:today }}">
+        &ensp;
         <label for="filtro_cliente" class="mr-2">Devedor:</label>
         <input type="text" name="filtro_cliente" class="form-control mr-2" style="width: 450px;" list="lista_clientes" value="{{ filtro_cliente }}">
         <datalist id="lista_clientes">
@@ -97,6 +104,11 @@
             {% endfor %}
         </datalist>
         <button class="btn btn-primary">Filtrar</button>
+        &ensp;
+        <button type="button" class="btn btn-warning" onclick="window.print()" title="Imprimir">
+            Impirmir<i class="bi bi-printer"></i>
+        </button>
+        
         <a href="{% url 'entradas_monetarias_pdf' %}?data_de={{ data_de|default:'' }}&data_ate={{ data_ate|default:'' }}&filtro_cliente={{ filtro_cliente|default:'' }}"
         class="btn btn-danger ml-2" target="_blank">PDF</a>
     </form>
@@ -173,7 +185,7 @@ document.querySelectorAll('.editar-entrada').forEach(function(botao) {
         const botaoGravar = document.getElementById('botao-gravar');
         botaoGravar.textContent = 'Alterar';
         botaoGravar.classList.remove('btn-success');
-        botaoGravar.classList.add('btn-warning');
+        botaoGravar.classList.add('btn-success');
 
         // Adicionar campo hidden com ID
         let inputHidden = document.getElementById("id_entrada");

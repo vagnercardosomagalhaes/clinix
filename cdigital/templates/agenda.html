@@ -95,7 +95,7 @@
                 <!-- Profissional -->
                 <div class="mb-3">
                     <label for="id_profissional" class="form-label">Profissional</label>
-                    <select id="id_profissional" name="profissional" class="form-control">
+                    <select id="id_profissional" name="profissional"  class="form-control">
                         <option value="">--- Selecione um profissional ---</option>
                         {% for profissional in profissionais %}
                         <option value="{{ profissional.id }}" {% if form.profissional.value|stringformat:"s" == profissional.id|stringformat:"s" %}selected{% endif %}>
@@ -115,7 +115,7 @@
                 </div>
                 <!-- Convenio -->
                  <div class="mb-3">
-                    <label for="id_convenio" class="form-label">Convênio</label>
+                    <label for="id_convenio" class="form-label">Plano de saúde</label>
                     <select id="id_convenio" name="convenio" class="form-control">
                         <option value="">--- Selecione um convênio ---</option>
                         {% for convenio in convenios %}
@@ -134,12 +134,12 @@
                 <!-- Carteirinha -->
                 <div class="col-md-6 mb-3">
                     <label for="id_carteirinha" class="form-label">Carteirinha</label>
-                    <input type="text" id="id_carteirinha" name="carteirinha" class="form-control" />
+                    <input type="text" id="id_carteirinha" name="carteirinha" style="width: 250px;" class="form-control" />
                 </div>
                 <!-- Telefone -->
                 <div class="mb-3">
                     <label for="id_telefone" class="form-label">Telefone</label>
-                    <input type="text" id="id_telefone" class="form-control" readonly>
+                    <input type="text" id="id_telefone" class="form-control" style="width: 150px;">
                 </div>
 
                 <!-- Campos do form -->

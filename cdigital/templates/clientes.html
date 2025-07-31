@@ -1,5 +1,6 @@
 {% load bootstrap4 %}
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -8,12 +9,18 @@
     <title>Clientes</title>
     {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'estilo.css' %}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelector('label[for="id_email"]').textContent = "E-mail";
+        });
+    </script>
 </head>
 <body>
     <div class="container">        
         {% bootstrap_messages %}       
         <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
         <h1 class="mb-4">Cadastro de Clientes</h1>
+
         <form method="post" action="{% url 'clientes' %}" class="form" role="form" autocomplete="off">
                 {% csrf_token %}
                 {% bootstrap_form form %}
@@ -29,9 +36,9 @@
                                        
                     <div class="col d-flex"></div>
                     <div class="col d-flex"></div>
-                </div> 
-                
+                </div>                 
         </form>
+
     </div>
 <!-- jQuery e jQuery Mask -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -45,5 +52,24 @@
 </script>
 <!-- Bootstrap JavaScript -->
 {% bootstrap_javascript %}
+<script> // Alterando o label dos campos
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('label[for="id_convenio"]').textContent = "Plano de Saúde";
+    document.querySelector('label[for="id_carteirinha"]').textContent = "Nº do Cartão";
+    document.querySelector('label[for="id_telefone"]').textContent = "Celular com DDD";
+    document.querySelector('label[for="id_cep"]').textContent = "CEP";
+    document.querySelector('label[for="id_endereco"]').textContent = "Endereço";
+    document.querySelector('label[for="id_numero"]').textContent = "Número";
+    document.querySelector('label[for="id_complemento"]').textContent = "Complemento";
+    document.querySelector('label[for="id_bairro"]').textContent = "Bairro";
+    document.querySelector('label[for="id_cidade"]').textContent = "Cidade";
+    document.querySelector('label[for="id_estado"]').textContent = "Estado";
+    document.querySelector('label[for="id_nome"]').textContent = "Nome Completo";
+    document.querySelector('label[for="id_cpf"]').textContent = "CPF";    
+    document.querySelector('label[for="id_data_nascimento"]').textContent = "Data de Nascimento";
+    document.querySelector('label[for="id_sexo"]').textContent = "Sexo";
+    document.querySelector('label[for="id_observacoes"]').textContent = "Observações";    
+  });
+</script>
 </body>
 </html>

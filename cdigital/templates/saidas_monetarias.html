@@ -1,5 +1,6 @@
 {% load bootstrap4 %}
 {% load static %}
+{% now "Y-m-d" as today %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -40,8 +41,9 @@
         </style>
 </head>
 <body>
-<div class="container mt-4">
-    <h3>Cadastro de Saídas Monetárias</h3>
+<div class="container mt-4" style="max-width: 1280px;">
+    <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
+    <h3>Controle de Saídas Monetárias</h3>
 
     <form method="post" action="{% url 'saidas_monetarias' %}" class="mb-4">
         {% csrf_token %}
@@ -97,9 +99,9 @@
 
     <form method="get" class="form-inline mb-3">
         <label for="data_de" class="mr-2">Data de:</label>
-        <input type="date" name="data_de" class="form-control mr-2" value="{{ data_de }}">
+        <input type="date" name="data_de" class="form-control mr-2" value="{{ data_de|default:today }}">
         <label for="data_ate" class="mr-2">Até:</label>
-        <input type="date" name="data_ate" class="form-control mr-2" value="{{ data_ate }}">
+        <input type="date" name="data_ate" class="form-control mr-2" value="{{ data_ate|default:today }}">
         
         <label for="filtro_credor" class="mr-2">Credor:</label>
         <input list="credores_datalist" name="filtro_credor" style="width: 450px;" id="filtro_credor" class="form-control mr-2"
@@ -111,9 +113,13 @@
         </datalist>
         <button class="btn btn-primary">Filtrar</button>
         &ensp;
-        <button type="button" class="btn btn-warning" onclick="window.print()" title="Imprimir">
-            <i class="bi bi-printer"></i>
-        </button>
+        <a href="{% url 'saidas_monetarias_pdf' %}?data_de={{ data_de }}&data_ate={{ data_ate }}&filtro_credor={{ filtro_credor }}" 
+        class="btn btn-warning" target="_blank">
+        🖨️ Imprimir
+        </a>
+         &ensp;
+        <a href="{% url 'saidas_monetarias_pdf' %}?data_de={{ data_de|default:'' }}&data_ate={{ data_ate|default:'' }}&filtro_cliente={{ filtro_cliente|default:'' }}"
+        class="btn btn-danger ml-2" target="_blank">PDF</a>
     </form>
     <div id="print-header" style="display: none;">
         <h4 class="mt-4">Listagem de Contas a Pagar</h4>

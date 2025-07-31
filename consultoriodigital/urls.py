@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('cdigital.urls')),
     path('logout/', views.logout_view, name='logout'),
+    
 ]

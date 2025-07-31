@@ -54,7 +54,6 @@ input[type="email"] {
 input[type="text"] {    
     background-color:bisque;
 }
-
 input[type="date"] {    
     background-color:bisque;
 }
@@ -67,14 +66,10 @@ option {
 input[type="number"] {    
     background-color:bisque;
 }
-
 select.form-control {
     
     background-color:bisque !important; /* exemplo de fundo escuro */
 }
-
-
-
 
 #id_login {
   text-transform: none !important;
@@ -89,10 +84,12 @@ input[type="text"],
     width: 150px;
 }
 
-
 th, td {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-
     }
+
+.campo-nome {
+    width: 200% !important;
+}

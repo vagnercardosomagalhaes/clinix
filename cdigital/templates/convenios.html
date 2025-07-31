@@ -28,7 +28,7 @@
 
         <hr>
 
-        <h2 class="mt-5">Convênios Cadastrados</h2>
+        <h2 class="mt-5">PLanos de Saúde Cadastrados</h2>
         <table class="table table-striped mt-3">
             <thead>
                 <tr>
@@ -61,5 +61,10 @@
         &ensp; 
         <a href="{% url 'index' %}" class="btn btn-primary ms-2">Retornar</a>
     </div>
+<script> // Alterando o label dos campos
+    document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('label[for="id_registro_ans"]').textContent = "Registro ANS";    
+  });
+</script>
 </body>
 </html>

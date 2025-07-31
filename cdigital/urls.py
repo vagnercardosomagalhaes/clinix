@@ -70,6 +70,11 @@ urlpatterns = [
 
     path('contas_receber/pdf/', views.contas_receber_pdf, name='contas_receber_pdf'),
     path('entradas_monetarias/pdf/', views.entradas_monetarias_pdf, name='entradas_monetarias_pdf'),
+    path('saidas-monetarias/pdf/', views.saidas_monetarias_pdf, name='saidas_monetarias_pdf'),
+    path("contas_pagar/pdf/", views.contas_pagar_pdf, name="contas_pagar_pdf"),
+
+    path('usuarios/', views.usuarios, name='usuarios'),
+    path('acesso-negado/', views.acesso_negado, name='acesso_negado'),
 
     
     
