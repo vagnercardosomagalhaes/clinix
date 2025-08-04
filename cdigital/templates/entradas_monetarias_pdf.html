@@ -23,6 +23,7 @@
             <tr>
                 <th>Data</th>
                 <th>Origem</th>
+                <th>Favorecido</th>
                 <th>Descrição</th>
                 <th>Cód. Serviço</th>
                 <th>Conta</th>
@@ -34,6 +35,7 @@
             <tr>
                 <td>{{ entrada.vencimento|date:"d/m/Y" }}</td>
                 <td>{{ entrada.cliente }}</td>
+                <td>{{ entrada.favorecido }}</td>
                 <td>{{ entrada.descricao }}</td>
                 <td>{{ entrada.codigo_servico }}</td>
                 <td>{{ entrada.conta_destino.simbolo }}</td>

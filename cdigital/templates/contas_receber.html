@@ -70,6 +70,10 @@
                 </datalist>
             </div>
             <div class="col">
+                <label for="favorecido">Favorecido:</label>
+                <input type="text" name="favorecido" id="favorecido" class="form-control" placeholder="Nome do favorecido">
+            </div>
+            <div class="col">
                 <label for="receita">Tipo de Receita:</label>
                 <select name="receita" id="receita" class="form-control" required>
                     <option value="">Selecione a receita</option>
@@ -158,11 +162,12 @@
                 <tr>
                 <th style="width: 90px;">Data</th>
                 <th style="width: 100px;">Origem</th>
+                <th style="width: 150px;">Favorecido</th>
                 <th style="width: 220px;">Descrição</th>
-                <th style="width: 120px;">Cód. Serviço</th>
+                <th style="width: 80px;">Cód.</th>
                 <th style="width: 100px;">Valor</th>
                 <th style="width: 80px;">Conta</th>            
-                <th style="width: 120px;">Ações</th>
+                <th style="width: 180px;">Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -170,6 +175,7 @@
                 <tr>
                     <td>{{ conta.vencimento|date:"d/m/Y" }}</td>
                     <td>{{ conta.cliente }}</td>
+                    <td>{{ conta.favorecido }}</td>
                     <td>{{ conta.descricao }}</td>
                     <td>{{ conta.codigo_servico }}</td>
                     
@@ -182,6 +188,7 @@
                             data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
                             data-receita="{{ conta.receita.id }}"
                             data-cliente="{{ conta.cliente }}"
+                            data-favorecido="{{ conta.favorecido }}"
                             data-descricao="{{ conta.descricao }}"
                             data-valor="{{ conta.valor|stringformat:'.2f' }}"
                             data-conta_destino="{% if conta.conta_destino %}{{ conta.conta_destino.id }}{% endif %}"
@@ -195,6 +202,7 @@
                             data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
                             data-receita="{{ conta.receita.id }}"
                             data-cliente="{{ conta.cliente }}"
+                            data-favorecido="{{ conta.favorecido }}"
                             data-descricao="{{ conta.descricao }}"
                             data-valor="{{ conta.valor|stringformat:'.2f' }}"
                             data-conta_destino="{% if conta.conta_destino %}{{ conta.conta_destino.id }}{% endif %}"
@@ -210,6 +218,7 @@
                             data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
                             data-receita="{{ conta.receita.id }}"
                             data-cliente="{{ conta.cliente }}"
+                            data-favorecido="{{ conta.favorecido }}"
                             data-descricao="{{ conta.descricao }}"
                             data-valor="{{ conta.valor|stringformat:'.2f' }}"
                             data-conta_destino="{% if conta.conta_destino %}{{ conta.conta_destino.id }}{% endif %}"
@@ -223,6 +232,7 @@
                             data-vencimento="{{ conta.vencimento|date:'Y-m-d' }}"
                             data-receita="{{ conta.receita.id }}"
                             data-cliente="{{ conta.cliente }}"
+                            data-favorecido="{{ conta.favorecido }}"
                             data-descricao="{{ conta.descricao }}"
                             data-valor="{{ conta.valor|stringformat:'.2f' }}"
                             data-conta_destino="{% if conta.conta_destino %}{{ conta.conta_destino.id }}{% endif %}"
@@ -279,6 +289,7 @@ document.querySelectorAll('.editar-conta').forEach(function(botao) {
 
         document.getElementById('vencimento').value = this.dataset.vencimento;
         document.getElementById('cliente').value = this.dataset.cliente;
+        document.getElementById('favorecido').value = this.dataset.favorecido || '';
         document.getElementById('receita').value = this.dataset.receita;
         document.getElementById('descricao').value = this.dataset.descricao;
         document.getElementById('valor').value = this.dataset.valor.replace(',', '.');
@@ -322,6 +333,7 @@ document.querySelectorAll('.receber-conta').forEach(function(botao) {
                 'vencimento': this.dataset.vencimento,
                 'receita': this.dataset.receita,
                 'cliente': this.dataset.cliente,
+                'favorecido': this.dataset.favorecido || '',
                 'descricao': this.dataset.descricao,
                 'valor': this.dataset.valor,
                 'conta_destino': this.dataset.conta_destino,               

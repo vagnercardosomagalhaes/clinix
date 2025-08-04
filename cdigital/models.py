@@ -199,6 +199,7 @@ class ContaPagar(models.Model):
     vencimento = models.DateField()
     despesa = models.ForeignKey('Despesa', on_delete=models.PROTECT)
     credor = models.CharField(max_length=100)
+    favorecido = models.CharField(max_length=100, blank=True, null=True)
     descricao = models.CharField(max_length=200, blank=True)
     conta_origem = models.ForeignKey(Banco, on_delete=models.SET_NULL, null=True, blank=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
@@ -211,6 +212,7 @@ class ContaPagar(models.Model):
 class ContaReceber(models.Model):
     vencimento = models.DateField()
     cliente = models.CharField(max_length=255)
+    favorecido = models.CharField(max_length=100, blank=True, null=True)
     receita = models.ForeignKey(Receita, on_delete=models.CASCADE)
     descricao = models.CharField(max_length=255, blank=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
@@ -225,6 +227,7 @@ class ContaReceber(models.Model):
 class EntradasMonetarias(models.Model):
     vencimento = models.DateField()
     cliente = models.CharField(max_length=100)
+    favorecido = models.CharField(max_length=100, blank=True, null=True)
     receita = models.ForeignKey('Receita', on_delete=models.PROTECT)
     convenio = models.ForeignKey('Convenios', on_delete=models.SET_NULL, null=True, blank=True)
     descricao = models.CharField(max_length=200, blank=True)
@@ -241,6 +244,7 @@ class EntradasMonetarias(models.Model):
 class SaidasMonetarias(models.Model):
     vencimento = models.DateField()
     credor = models.CharField(max_length=100)
+    favorecido = models.CharField(max_length=100, blank=True, null=True)
     despesa = models.ForeignKey(Despesa, on_delete=models.PROTECT)
     descricao = models.CharField(max_length=200, blank=True)
     conta_origem = models.ForeignKey(Banco, on_delete=models.SET_NULL, null=True, blank=True)

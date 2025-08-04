@@ -53,6 +53,20 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
 
+
+
+def acessar_sistema(request):
+    if not os.path.exists(r'C:\Cdigital'):
+        return render(request, 'acesso_erro.html')
+    
+    # Redireciona para o sistema se a pasta existir - TROCAR URL AO INICIAR SERVIDOR
+    return redirect('https://179c8600afa9.ngrok-free.app')
+
+
+def acesso_erro(request):
+    return render(request, 'acesso_erro.html')
+
+
 def dados_empresa(request):
     empresa_id = request.POST.get("empresa_id")
     
@@ -786,6 +800,7 @@ def contas_pagar(request):
         vencimento = request.POST.get('vencimento')
         despesa_str = request.POST.get('despesa')
         credor = request.POST.get('credor')
+        favorecido = request.POST.get('favorecido')
         descricao = request.POST.get('descricao')
         conta_origem_id = request.POST.get('conta_origem')
         valor = request.POST.get('valor')
@@ -820,6 +835,7 @@ def contas_pagar(request):
             conta.vencimento = vencimento
             conta.despesa = despesa_obj
             conta.credor = credor
+            conta.favorecido = favorecido
             conta.descricao = descricao
             conta.valor = valor_decimal
             conta.conta_origem = conta_origem_obj
@@ -831,6 +847,7 @@ def contas_pagar(request):
                 vencimento=vencimento,
                 despesa=despesa_obj,
                 credor=credor,
+                favorecido=favorecido,
                 descricao=descricao,
                 valor=valor_decimal,
                 conta_origem=conta_origem_obj
@@ -859,6 +876,7 @@ def contas_pagar(request):
         'contas': contas,
         'despesas': Despesa.objects.all(),
         'credores': credores,
+        'favorecidos': ContaPagar.objects.values_list('favorecido', flat=True).distinct(),
         'bancos': bancos,
         'data_de': data_de,
         'data_ate': data_ate,
@@ -873,6 +891,7 @@ def contas_receber(request):
         conta_id = request.POST.get('id')
         vencimento = request.POST.get('vencimento')
         cliente = request.POST.get('Cliente')
+        favorecido = request.POST.get('favorecido')
         receita_id = request.POST.get('receita')
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
@@ -909,6 +928,7 @@ def contas_receber(request):
             conta = get_object_or_404(ContaReceber, id=conta_id)
             conta.vencimento = vencimento
             conta.cliente = cliente
+            conta.favorecido = favorecido
             conta.receita = receita
             conta.descricao = descricao
             conta.valor = valor_decimal
@@ -921,6 +941,7 @@ def contas_receber(request):
             ContaReceber.objects.create(
                 vencimento=vencimento,
                 cliente=cliente,
+                favorecido=favorecido,
                 receita=receita,
                 descricao=descricao,
                 valor=valor_decimal,
@@ -951,6 +972,7 @@ def contas_receber(request):
     return render(request, 'contas_receber.html', {
         'contas': contas,
         'clientes': clientes,
+        'favorecidos': ContaReceber.objects.values_list('favorecido', flat=True).distinct(),
         'receitas': Receita.objects.all(),
         'bancos': Banco.objects.all(),
         'servicos': servicos,
@@ -966,6 +988,7 @@ def entradas_monetarias(request):
         entrada_id = request.POST.get('id')
         vencimento = request.POST.get('vencimento')
         cliente = request.POST.get('Cliente')
+        favorecido = request.POST.get('favorecido')
         receita_id = request.POST.get('receita')
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
@@ -1052,6 +1075,7 @@ def saidas_monetarias(request):
         vencimento = request.POST.get('vencimento')
         despesa_id = request.POST.get('despesa')
         credor = request.POST.get('credor')
+        favorecido = request.POST.get('favorecido')
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         conta_origem_id = request.POST.get('conta_origem')
@@ -1080,6 +1104,7 @@ def saidas_monetarias(request):
             saida.vencimento = vencimento
             saida.despesa = despesa_obj
             saida.credor = credor
+            saida.favorecido = favorecido
             saida.descricao = descricao
             saida.valor = valor_decimal
             saida.conta_origem = banco_obj
@@ -1091,6 +1116,7 @@ def saidas_monetarias(request):
                 vencimento=vencimento,
                 despesa=despesa_obj,
                 credor=credor,
+                favorecido=favorecido,
                 descricao=descricao,
                 valor=valor_decimal,
                 conta_origem=banco_obj
@@ -1112,12 +1138,14 @@ def saidas_monetarias(request):
 
     total = saidas.aggregate(Sum('valor'))['valor__sum'] or 0
     credores = SaidasMonetarias.objects.values_list('credor', flat=True).distinct()
+
     despesas = Despesa.objects.all()
     bancos = Banco.objects.all()
 
     return render(request, 'saidas_monetarias.html', {
         'saidas': saidas,
         'credores': credores,
+        'favorecidos': SaidasMonetarias.objects.values_list('favorecido', flat=True).distinct(),
         'despesas': despesas,
         'bancos': bancos,
         'data_de': data_de,
@@ -1141,9 +1169,9 @@ def saidas_monetarias_pdf(request):
     saidas = SaidasMonetarias.objects.all()
 
     if data_inicio:
-        saidas = saidas.filter(data__gte=data_inicio)
+        saidas = saidas.filter(vencimento__gte=data_inicio)
     if data_fim:
-        saidas = saidas.filter(data__lte=data_fim)
+        saidas = saidas.filter(vencimento__lte=data_fim)
     if filtro_credor:
         saidas = saidas.filter(credor__icontains=filtro_credor)
 
@@ -1165,9 +1193,6 @@ def saidas_monetarias_pdf(request):
     return response
 
 
-
-
-
 def pagar_conta(request, conta_id):
     conta = get_object_or_404(ContaPagar, id=conta_id)
 
@@ -1176,6 +1201,7 @@ def pagar_conta(request, conta_id):
         vencimento=conta.vencimento,
         despesa=conta.despesa,
         credor=conta.credor,
+        favorecido=conta.favorecido,
         descricao=conta.descricao,
         valor=conta.valor,
         conta_origem=conta.conta_origem  # se esse campo existir nos dois modelos
@@ -1196,6 +1222,7 @@ def receber_conta(request):
         vencimento = request.POST.get('vencimento')
         receita_id = request.POST.get('receita')
         cliente = request.POST.get('cliente')
+        favorecido = request.POST.get('favorecido')
         descricao = request.POST.get('descricao')
         conta_destino_id = request.POST.get('conta_destino')
         valor = request.POST.get('valor')
@@ -1219,6 +1246,7 @@ def receber_conta(request):
             vencimento=vencimento,
             receita=receita,
             cliente=cliente,
+            favorecido=favorecido,
             descricao=descricao,
             valor=valor_decimal,
             conta_destino=banco,

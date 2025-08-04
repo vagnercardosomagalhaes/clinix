@@ -46,6 +46,10 @@
                 </select>
             </div>
             <div class="col">
+                <label for="favorecido" class="mr-2">Favorecido:</label>
+                <input type="text" name="favorecido" class="form-control" placeholder="Favorecido"> 
+            </div>
+            <div class="col">
                 <label for="receita" class="mr-2">Tipo de Receita:</label>
                 <select name="receita" class="form-control" required>
                     <option value="">Selecione a receita</option>
@@ -118,6 +122,7 @@
             <tr>
             <th style="width: 90px;">Data</th>
             <th style="width: 100px;">Origem</th>
+            <th style="width: 150px;">Favorecido</th>
             <th style="width: 220px;">Descrição</th>
             <th style="width: 120px;">Cód. Serviço</th>
             <th style="width: 80px;">Conta</th>
@@ -130,6 +135,7 @@
             <tr>
                 <td>{{ entrada.vencimento|date:"d/m/Y" }}</td>
                 <td>{{ entrada.cliente }}</td>
+                <td>{{ entrada.favorecido }}</td>
                 <td>{{ entrada.descricao }}</td>
                 <td>{{ entrada.codigo_servico }}</td>
                 
@@ -141,6 +147,7 @@
                         data-id="{{ entrada.id }}"
                         data-vencimento="{{ entrada.vencimento|date:'Y-m-d' }}"
                         data-cliente="{{ entrada.cliente }}"
+                        data-favorecido="{{ entrada.favorecido }}"
                         data-receita="{{ entrada.receita.id }}"
                         data-descricao="{{ entrada.descricao }}"
                         data-conta_destino="{{ entrada.conta_destino.id }}"
@@ -174,6 +181,7 @@ document.querySelectorAll('.editar-entrada').forEach(function(botao) {
         // Preencher os campos
         document.querySelector('input[name="vencimento"]').value = this.dataset.vencimento;
         document.querySelector('select[name="Cliente"]').value = this.dataset.cliente;
+        document.querySelector('input[name="favorecido"]').value = this.dataset.favorecido || '';
         document.querySelector('select[name="receita"]').value = this.dataset.receita;
         document.querySelector('input[name="descricao"]').value = this.dataset.descricao;
         document.querySelector('select[name="conta"]').value = this.dataset.conta_destino;

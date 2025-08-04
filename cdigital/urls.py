@@ -76,6 +76,12 @@ urlpatterns = [
     path('usuarios/', views.usuarios, name='usuarios'),
     path('acesso-negado/', views.acesso_negado, name='acesso_negado'),
 
+    path('acesso-erro/', views.acesso_erro, name='acesso_erro'),
+
+    urlpatterns = [
+    path('acessar/', acessar_sistema, name='acessar_sistema'),
+]
+
     
     
     #path('contato/', contato, name='contato'),    

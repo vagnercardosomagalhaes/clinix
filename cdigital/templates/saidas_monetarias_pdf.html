@@ -26,6 +26,7 @@
             <tr>
                 <th>Data</th>
                 <th>Credor</th>
+                <th>Favorecido</th>
                 <th>Descrição</th>
                 <th>Valor (R$)</th>
             </tr>
@@ -33,8 +34,10 @@
         <tbody>
             {% for saida in saidas %}
             <tr>
-                <td>{{ saida.data|date:"d/m/Y" }}</td>
+                <td>{{ saida.vencimento|date:"d/m/Y" }}</td>
                 <td>{{ saida.credor }}</td>
+                <td>{{ saida.favorecido }}</td>
+
                 <td>{{ saida.descricao }}</td>
                 <td>{{ saida.valor|floatformat:2 }}</td>
             </tr>
