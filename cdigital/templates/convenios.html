@@ -23,6 +23,8 @@
                 <button type="submit" class="btn btn-primary">
                     {% if editando %}Atualizar Convênio{% else %}Salvar Convênio{% endif %}
                 </button>
+                 &ensp; 
+                <a href="{% url 'index' %}" class="btn btn-warning ms-2">Retornar</a>
             </div>
         </form>
 
@@ -58,8 +60,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        &ensp; 
-        <a href="{% url 'index' %}" class="btn btn-primary ms-2">Retornar</a>
+       
     </div>
 <script> // Alterando o label dos campos
     document.addEventListener('DOMContentLoaded', function() {

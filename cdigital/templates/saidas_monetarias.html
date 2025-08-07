@@ -55,7 +55,7 @@
 
             <div class="col">
                 <label for="credor">Credor:</label>
-                <input list="lista_credores" name="credor" id="credor" class="form-control" placeholder="Nome do credor" required>
+                <input list="lista_credores" name="credor" id="credor" style="width: 650px;" class="form-control" placeholder="Nome do credor" required>
                 <datalist id="lista_credores">
                     {% for c in credores %}
                         <option value="{{ c }}">
@@ -64,11 +64,11 @@
             </div>
             <div class="col">
                 <label for="favorecido">Favorecido:</label>
-                <input type="text" name="favorecido" id="favorecido" class="form-control" placeholder="Nome do favorecido">
+                <input type="text" name="favorecido" id="favorecido" style="width: 650px;" class="form-control" placeholder="Nome do favorecido">
             </div>
             <div class="col">
                 <label for="despesa">Tipo de Despesa:</label>
-                <select name="despesa" id="despesa" class="form-control" required>
+                <select name="despesa" id="despesa" style="width: 650px;" class="form-control" required>
                     <option value="">Selecione a despesa</option>
                     {% for d in despesas %}
                         <option value="{{ d.id }}">{{ d.codigo }} - {{ d.nome }}</option>
@@ -77,11 +77,11 @@
             </div>
             <div class="col">
                 <label for="descricao">Descrição:</label>
-                <input type="text" name="descricao" id="descricao" class="form-control" placeholder="Descrição">
+                <input type="text" name="descricao" id="descricao" style="width: 850px;" class="form-control" placeholder="Descrição">
             </div>
             <div class="col">
                 <label for="conta_origem">Conta Origem:</label>
-                <select name="conta_origem" id="conta_origem" class="form-control" required>
+                <select name="conta_origem" id="conta_origem" style="width: 650px;" class="form-control" required>
                     <option value="">Selecione a conta origem</option>
                     {% for banco in bancos %}
                         <option value="{{ banco.id }}">{{ banco.simbolo }}</option>

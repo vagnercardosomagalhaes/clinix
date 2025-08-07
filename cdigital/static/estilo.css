@@ -35,39 +35,24 @@ a{
 
 input.form-control,
 select.form-control,
-textarea.form-control {
-    
-    background-color:bisque;
-    
+textarea.form-control {    
+    background-color:bisque;    
 }
 
 input[type="email"] {
     text-transform: none;
-    background-color:bisque;
-    
-}
-input[type="email"] {    
-    background-color:bisque;
+    background-color:bisque;    
 }
 
+input[type="email"], input[type="text"], input[type="date"], input[list],input[type="number"] {    
+    background-color:bisque;
+} 
 
-input[type="text"] {    
-    background-color:bisque;
-}
-input[type="date"] {    
-    background-color:bisque;
-}
-input[list] {    
-    background-color:bisque !important;
-}
 option {    
     background-color:bisque;
 }
-input[type="number"] {    
-    background-color:bisque;
-}
-select.form-control {
-    
+ 
+select.form-control {    
     background-color:bisque !important; /* exemplo de fundo escuro */
 }
 
@@ -84,12 +69,6 @@ input[type="text"],
     width: 150px;
 }
 
-th, td {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
 .campo-nome {
-    width: 200% !important;
+    width: 100% 
 }

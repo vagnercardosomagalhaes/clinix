@@ -20,25 +20,25 @@
         {% bootstrap_messages %}       
         <img src="{% static '/images/logo.png' %}" alt="Clinix Logo" class="img-fluid" style="max-width: 300px;">
         <h1 class="mb-4">Cadastro de Clientes</h1>
-
-        <form method="post" action="{% url 'clientes' %}" class="form" role="form" autocomplete="off">
-                {% csrf_token %}
-                {% bootstrap_form form %}
-                <div class="row">
-                    
-                        <button type="submit" class="btn btn-primary ms-2" role="button">Cadastrar</button>
-                        &ensp;
-                        <a href="{% url 'lista_clientes' %}" class="btn btn-warning ms-2" role="button">Listar Clientes</a>
-                        &ensp; 
-                        <a href="{% url 'index' %}" class="btn btn-primary">Retornar</a>
-                        &ensp;
-                    
-                                       
-                    <div class="col d-flex"></div>
-                    <div class="col d-flex"></div>
-                </div>                 
-        </form>
-
+         <div class="form-group">   
+            <form method="post" action="{% url 'clientes' %}" class="form" role="form" autocomplete="off">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <div class="row">
+                        
+                            <button type="submit" class="btn btn-primary ms-2" role="button">Cadastrar</button>
+                            &ensp;
+                            <a href="{% url 'lista_clientes' %}" class="btn btn-warning ms-2" role="button">Listar Clientes</a>
+                            &ensp; 
+                            <a href="{% url 'index' %}" class="btn btn-primary">Retornar</a>
+                            &ensp;
+                        
+                                        
+                        <div class="col d-flex"></div>
+                        <div class="col d-flex"></div>
+                    </div>                 
+            </form>
+        </div>
     </div>
 <!-- jQuery e jQuery Mask -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

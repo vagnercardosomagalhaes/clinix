@@ -16,8 +16,8 @@
         {% csrf_token %}
         {% bootstrap_form form layout='vertical' form_group_class='mb-3' %}
         <button type="submit" class="btn btn-primary">Salvar</button>
-        <a href="{% url 'lista_clientes' %}" class="btn btn-warning">Retornar</a>
-        <a href="{% url 'index' %}" class="btn btn-primary ms-2">Retornar ao Início</a>
+        <a href="{% url 'lista_clientes' %}" class="btn btn-warning">Retornar para a listagem</a>
+        <a href="{% url 'index' %}" class="btn btn-danger ms-2">Retornar ao Início</a>
     </form>
 </div>
 {% bootstrap_javascript %}

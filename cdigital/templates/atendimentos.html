@@ -4,7 +4,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Agendamentos do Dia</title>
+    <title>Atendimentos de Hoje</title>
     {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'estilo.css' %}">
 </head>
@@ -15,7 +15,7 @@
 
     <!-- Cabeçalho com Título e Seletor de Profissional -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 style="color: blue;">Agendamentos do dia {{ data_hoje|date:"d/m/Y" }}</h1>
+      <h1 style="color: blue;">Atendimentos do dia {{ data_hoje|date:"d/m/Y" }}</h1>
       
       <form method="get">
           <div class="d-flex">
@@ -36,7 +36,7 @@
 
     {% if atendimentos %}
         <table class="table table-bordered">
-            <thead>
+            <thead class="thead-dark">
                 <tr>
                     <th>Hora</th>
                     <th>Cliente</th>                   

@@ -39,20 +39,22 @@
         {% endfor %}
     {% endif %}
 
-        
     <form method="get" class="mb-4">
         <div class="row g-2 align-items-center">
             <div class="col-auto">
                 <label for="data" class="col-form-label fw-bold">Filtrar por data:</label>
             </div>
             <div class="col-auto">
-                <input type="text" name="data" id="data" class="form-control" value="{{ data_filtro }}">
+                <input type="text" name="data" id="data" class="form-control" value="{{ data_filtro }}">                
             </div>
-        </div>
+            <div class="col-auto">
+                <a href="{% url 'index' %}" class="btn btn-warning ms-2">Retornar ao Início</a>
+            </div>             
+        </div>        
     </form>
 
-    <table class="table table-bordered table-striped">
-        <thead>
+    <table class="table table-bordered table-striped" style="table-layout: fixed; width: 100%;">
+        <thead class="thead-dark">
             <tr>
                 <th>Cliente</th>
                 <th>Data</th>
@@ -86,14 +88,13 @@
 
 
     <h2 class="mb-3" style="color: blue;">Agendamentos</h2>
-    <div class="card mb-4">
+    <div class="card mb-2">
         <div class="card-header">Novo Agendamento</div>
         <div class="card-body">
-            <form method="post">
+            <form method="post" style="margin-bottom: 10px;">
                 {% csrf_token %}
-
                 <!-- Profissional -->
-                <div class="mb-3">
+                <div class="mb-1">
                     <label for="id_profissional" class="form-label">Profissional</label>
                     <select id="id_profissional" name="profissional"  class="form-control">
                         <option value="">--- Selecione um profissional ---</option>
@@ -108,13 +109,13 @@
                 </div>                
                 
                 <!-- Cliente -->
-                <div class="mb-3">
+                <div class="mb-1">
                     <label for="id_cliente" class="form-label">Cliente</label>
                     <input type="text" id="cliente_autocomplete" name="cliente_nome" class="form-control" placeholder="Digite o nome do cliente" autocomplete="off" />
                     <input type="hidden" id="id_cliente" name="cliente" />
                 </div>
                 <!-- Convenio -->
-                 <div class="mb-3">
+                 <div class="mb-1">
                     <label for="id_convenio" class="form-label">Plano de saúde</label>
                     <select id="id_convenio" name="convenio" class="form-control">
                         <option value="">--- Selecione um convênio ---</option>
@@ -137,38 +138,38 @@
                     <input type="text" id="id_carteirinha" name="carteirinha" style="width: 250px;" class="form-control" />
                 </div>
                 <!-- Telefone -->
-                <div class="mb-3">
+                <div class="mb-1">
                     <label for="id_telefone" class="form-label">Telefone</label>
                     <input type="text" id="id_telefone" class="form-control" style="width: 150px;">
                 </div>
 
                 <!-- Campos do form -->
-                <div class="mb-3">
+                <div class="mb-1">
                     <label class="form-label">Data</label>
                     {{ form.data }}
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-1">
                     <label class="form-label">Hora Início</label>
                     {{ form.hora_inicio|add_class:"form-control" }}
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-1">
                     <label class="form-label">Hora Fim</label>
                     {{ form.hora_fim|add_class:"form-control" }}
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-1">
                     <label class="form-label">Descrição</label>
                     {{ form.descricao }}
                 </div>
 
                 <button type="submit" class="btn btn-success">Salvar</button>
-                <a href="{% url 'agenda' %}" class="btn btn-secondary">Cancelar</a>
+                <a href="{% url 'agenda' %}" class="btn btn-danger">Cancelar</a>
                 <a href="#" id="whatsappLink" class="btn btn-success ms-2" target="_blank" title="Enviar WhatsApp">
                     <img src="https://img.icons8.com/color/24/000000/whatsapp--v1.png" alt="WhatsApp">
                 </a>
-                <a href="{% url 'index' %}" class="btn btn-primary ms-2">Retornar ao Início</a>
+                <a href="{% url 'index' %}" class="btn btn-warning ms-2">Retornar ao Início</a>
             </form>
         </div>
     </div>
