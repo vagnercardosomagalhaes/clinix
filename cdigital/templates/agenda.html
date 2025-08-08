@@ -48,6 +48,19 @@
                 <input type="text" name="data" id="data" class="form-control" value="{{ data_filtro }}">                
             </div>
             <div class="col-auto">
+            <label for="profissional" class="col-form-label fw-bold">Profissional:</label>
+            </div>
+            <div class="col-auto">
+                <select name="profissional" id="profissional" style="width: 380px; height: 33px;background-color: bisque; border-radius: 7px;" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for prof in profissionais %}
+                        <option value="{{ prof.id }}" {% if profissional_selecionado == prof.id|stringformat:"s" %}selected{% endif %}>
+                            {{ prof.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
                 <a href="{% url 'index' %}" class="btn btn-warning ms-2">Retornar ao Início</a>
             </div>             
         </div>        
@@ -56,21 +69,23 @@
     <table class="table table-bordered table-striped" style="table-layout: fixed; width: 100%;">
         <thead class="thead-dark">
             <tr>
-                <th>Cliente</th>
-                <th>Data</th>
-                <th>Início</th>
-                <th>Fim</th>
-                <th>Descrição</th>
-                <th>Ações</th>
+                <th style="background-color: black; color: ghostwhite;">Profissional</th>
+                <th style="background-color: black; color: ghostwhite;">Cliente</th>
+                <th style="background-color: black; color: ghostwhite; width: 100px;">Data</th>
+                <th style="background-color: black; color: ghostwhite; width: 100px;">Início</th>
+                <th style="background-color: black; color: ghostwhite; width: 100px;">Fim</th>
+                <th style="background-color: black; color: ghostwhite;">Descrição</th>
+                <th style="background-color: black; color: ghostwhite;width: 150px;">Ações</th>
             </tr>
         </thead>
         <tbody>
             {% for agenda in agenda_lista %}
                 <tr>
+                    <td style="background-color:lightgoldenrodyellow; color:black;">{{ agenda.profissional.nome }}</td>
                     <td>{{ agenda.cliente.nome }}</td>
-                    <td>{{ agenda.data|date:"d/m/Y" }}</td>
-                    <td>{{ agenda.hora_inicio|time:"H:i" }}</td>
-                    <td>{{ agenda.hora_fim|time:"H:i" }}</td>
+                    <td style="background-color:yellow; color:rgb(0, 0, 0);" >{{ agenda.data|date:"d/m/Y" }}</td>
+                    <td style="background-color:aquamarine; color:black;">{{ agenda.hora_inicio|time:"H:i" }}</td>
+                    <td style="background-color:lightsalmon; color:black;">{{ agenda.hora_fim|time:"H:i" }}</td>
                     <td>{{ agenda.descricao }}</td>
                     <td>
                         <a href="{% url 'editar_agenda' agenda.pk %}" class="btn btn-sm btn-warning">Editar</a>
@@ -89,13 +104,14 @@
 
     <h2 class="mb-3" style="color: blue;">Agendamentos</h2>
     <div class="card mb-2">
-        <div class="card-header">Novo Agendamento</div>
+        <div class="card-header" style="background-color: black; color: ghostwhite;">Novo Agendamento</div>
         <div class="card-body">
             <form method="post" style="margin-bottom: 10px;">
                 {% csrf_token %}
+
                 <!-- Profissional -->
-                <div class="mb-1">
-                    <label for="id_profissional" class="form-label">Profissional</label>
+                <div class="mb-0">
+                    <label for="id_profissional" class="form-label" style="width: 650px;">Profissional</label>
                     <select id="id_profissional" name="profissional"  class="form-control">
                         <option value="">--- Selecione um profissional ---</option>
                         {% for profissional in profissionais %}
@@ -109,13 +125,13 @@
                 </div>                
                 
                 <!-- Cliente -->
-                <div class="mb-1">
+                <div class="mb-0">
                     <label for="id_cliente" class="form-label">Cliente</label>
                     <input type="text" id="cliente_autocomplete" name="cliente_nome" class="form-control" placeholder="Digite o nome do cliente" autocomplete="off" />
                     <input type="hidden" id="id_cliente" name="cliente" />
                 </div>
                 <!-- Convenio -->
-                 <div class="mb-1">
+                 <div class="mb-0">
                     <label for="id_convenio" class="form-label">Plano de saúde</label>
                     <select id="id_convenio" name="convenio" class="form-control">
                         <option value="">--- Selecione um convênio ---</option>
@@ -133,28 +149,28 @@
                     </select>
                 </div>
                 <!-- Carteirinha -->
-                <div class="col-md-6 mb-3">
+                <div class="mb-0">
                     <label for="id_carteirinha" class="form-label">Carteirinha</label>
                     <input type="text" id="id_carteirinha" name="carteirinha" style="width: 250px;" class="form-control" />
                 </div>
                 <!-- Telefone -->
-                <div class="mb-1">
+                <div class="mb-0">
                     <label for="id_telefone" class="form-label">Telefone</label>
                     <input type="text" id="id_telefone" class="form-control" style="width: 150px;">
                 </div>
 
                 <!-- Campos do form -->
-                <div class="mb-1">
+                <div class="mb-0">
                     <label class="form-label">Data</label>
                     {{ form.data }}
                 </div>
 
-                <div class="mb-1">
+                <div class="mb-0">
                     <label class="form-label">Hora Início</label>
                     {{ form.hora_inicio|add_class:"form-control" }}
                 </div>
 
-                <div class="mb-1">
+                <div class="mb-0">
                     <label class="form-label">Hora Fim</label>
                     {{ form.hora_fim|add_class:"form-control" }}
                 </div>

@@ -151,7 +151,7 @@
                     <th style="width: 100px;">Credor</th>
                     <th style="width: 200px;">Favorecido</th>
                     <th style="width: 180px;">Descrição</th>
-                    <th style="width: 90px;">Valor</th>
+                    <th style="width: 90px;">Valor R$</th>
                     <th style="width: 80px;">Conta</th>
                     <th style="width: 180px;">Ações</th>
                 </tr>
@@ -159,11 +159,11 @@
             <tbody>
                 {% for conta in contas %}
                     <tr>
-                        <td>{{ conta.vencimento|date:"d/m/Y" }}</td>
+                        <td style="background-color:aquamarine; color:black;">{{ conta.vencimento|date:"d/m/Y" }}</td>
                         <td>{{ conta.credor }}</td>
                         <td>{{ conta.favorecido }}</td>
                         <td>{{ conta.descricao }}</td>
-                        <td>R$ {{ conta.valor|floatformat:2 }}</td>
+                        <td style="text-align: right; background-color:lightsalmon; color:black;">{{ conta.valor|floatformat:2 }}</td>
                         <td>
                             {% if conta.conta_origem %}
                                 {{ conta.conta_origem.simbolo }}
@@ -208,8 +208,8 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="3"><strong>Total do período:</strong></td>
-                    <td colspan="2"><strong>R$ {{ total|floatformat:2 }}</strong></td>
+                    <td colspan="3" style="background-color:gold; color:black;"><strong>Total do período R$:</strong></td>
+                    <td colspan="2" style="text-align: right; background-color:lightsalmon; color:black;"><strong>{{ total|floatformat:2 }}</strong></td>
                 </tr>
             </tfoot>
         </table>

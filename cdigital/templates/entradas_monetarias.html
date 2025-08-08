@@ -122,25 +122,25 @@
             <tr>
             <th style="width: 100px;">Data</th>
             <th style="width: 180px;">Origem</th>
-            <th style="width: 150px;">Favorecido</th>
-            <th style="width: 280px;">Descrição</th>
+            <th style="width: 280px;">Favorecido</th>
+            <th style="width: 350px;">Descrição</th>
             <th style="width: 120px;">Cód. Serviço</th>
-            <th style="width: 80px;">Conta</th>
-            <th style="width: 100px;">Valor</th>
-            <th style="width: 150px;">Ações</th>
+            <th style="width: 70px;">Conta</th>
+            <th style="width: 100px;">Valor R$</th>
+            <th style="width: 145px;">Ações</th>
             </tr>
         </thead>
         <tbody>
         {% for entrada in entradas %}
             <tr>
-                <td>{{ entrada.vencimento|date:"d/m/Y" }}</td>
+                <td style="background-color:aquamarine; color:black;">{{ entrada.vencimento|date:"d/m/Y" }}</td>
                 <td>{{ entrada.cliente }}</td>
                 <td>{{ entrada.favorecido }}</td>
                 <td>{{ entrada.descricao }}</td>
                 <td>{{ entrada.codigo_servico }}</td>
                 
                 <td>{% if entrada.conta_destino %}{{ entrada.conta_destino.simbolo }}{% else %}-{% endif %}</td>
-                <td>R$ {{ entrada.valor|floatformat:2 }}</td>
+                <td style="background-color:lightsalmon; color:black;">{{ entrada.valor|floatformat:2 }}</td>
                 <td>
                     <!--<a href="#" class="btn btn-sm btn-success">Confirmar</a>-->
                     <a href="#" class="btn btn-sm btn-primary editar-entrada"
@@ -165,8 +165,9 @@
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="3"><strong>Total do período:</strong></td>
-                <td colspan="2" style="text-align: right;"><strong>R$ {{ total|floatformat:2 }}</strong></td>
+                <td style="background-color:gold; color:black;" colspan="3"><strong>Total do período R$:</strong></td>
+                <td colspan="3" style="background-color:gold;"></td>
+                <td colspan="3" style="text-align: left; background-color:lightsalmon; color:black;"><strong>{{ total|floatformat:2 }}</strong></td>
             </tr>
         </tfoot>
     </table>

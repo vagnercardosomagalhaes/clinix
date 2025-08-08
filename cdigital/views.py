@@ -370,21 +370,28 @@ def autocomplete_cliente(request):
 #*******************************************************************************
 def login_view(request):
     if request.method == 'POST':
-        login = request.POST.get('login')
-        senha = request.POST.get('senha')
+        login_input = request.POST.get('login')
+        senha_input = request.POST.get('senha')
 
         try:
-            usuario = Usuarios.objects.get(login=login, senha=senha)
-            request.session['usuario_id'] = usuario.id
-            request.session['usuario_nome'] = usuario.nome
-            request.session['usuario_is_admin'] = usuario.administrador
-            return redirect('index')  # ou a página principal do sistema
+            usuario = Usuarios.objects.get(login=login_input)
+            if check_password(senha_input, usuario.senha):
+                request.session['usuario_id'] = usuario.id
+                request.session['usuario_nome'] = usuario.nome
+                request.session['usuario_is_admin'] = usuario.is_admin
+                request.session['usuario_is_medico'] = usuario.is_medico                            
+                return redirect('index')
+            
+                
+            else:
+                return render(request, 'index.html', {'erro': 'Senha incorreta'})
         except Usuarios.DoesNotExist:
-            return render(request, 'index.html', {'erro': 'Login ou senha inválidos'})
-    
+            return render(request, 'index.html', {'erro': 'Login inválido'})
+
     return render(request, 'index.html')
 
-#******************************************************************************* Protejção das views com login e verificação de administrador
+
+#******************************************************************************* Proteção das views com login e verificação de administrador
 def login_required(view_func):
     def wrapper(request, *args, **kwargs):
         if 'usuario_id' not in request.session:
@@ -569,34 +576,32 @@ def excluir_atendimento(request, atendimento_id):
 def agenda(request):
     form = AgendaForm()
     data_filtro = request.GET.get('data') or date.today().isoformat()
-    # data_filtro = request.GET.get('data')  # captura a data enviada no filtro
+    profissional_id = request.GET.get('profissional')
+
     agenda_lista = Agenda.objects.all().order_by('-data', '-hora_inicio')
 
     profissionais = Usuarios.objects.filter(is_medico=True)
     convenios = Convenios.objects.all()
 
     if data_filtro:
-        agenda_lista = agenda_lista.filter(data=data_filtro).order_by('hora_inicio')
-    #else:
-        #agenda_lista = Agenda.objects.filter(data=date.today()).order_by('hora_inicio')
+        agenda_lista = agenda_lista.filter(data=data_filtro)
+
+    if profissional_id:
+        agenda_lista = agenda_lista.filter(profissional__id=profissional_id)
+
+    agenda_lista = agenda_lista.order_by('hora_inicio')
 
     if request.method == 'POST':
         cliente_nome = request.POST.get('cliente_nome', '').strip()
-
-        # Se não foi digitado nada
         if not cliente_nome:
             messages.error(request, 'Informe o nome do cliente.')
             return redirect('agenda')
 
-        # Verifica se já existe cliente com mesmo nome
         cliente = Clientes.objects.filter(nome__iexact=cliente_nome).first()
-
-        # Se não existir, cria novo cliente com nome e email genérico
         if not cliente:
             email_falso = f"{slugify(cliente_nome)}@exemplo.com"
             cliente = Clientes.objects.create(nome=cliente_nome, email=email_falso)
 
-        # Remove o campo cliente do form antes da validação
         form = AgendaForm(request.POST)
         form.fields.pop('cliente', None)
 
@@ -607,7 +612,6 @@ def agenda(request):
             messages.success(request, 'Agendamento realizado com sucesso!')
             return redirect('agenda')
         else:
-            print(form.errors)
             messages.error(request, 'Erro ao realizar agendamento. Verifique os dados e tente novamente.')
 
     context = {
@@ -615,6 +619,7 @@ def agenda(request):
         'agenda_lista': agenda_lista,
         'data_filtro': data_filtro,
         'profissionais': profissionais,
+        'profissional_selecionado': profissional_id,
         'convenios': convenios,
     }
     return render(request, 'agenda.html', context)

@@ -19,7 +19,7 @@
       
       <form method="get">
           <div class="d-flex">
-              <select name="profissional" class="form-select" onchange="this.form.submit()" style="width: 250px;">
+              <select name="profissional" class="form-select" style="width: 380px; height: 33px;background-color: bisque; border-radius: 7px;" onchange="this.form.submit()" style="width: 250px;">
                   <option value="">Todos os profissionais</option>
                   {% for profissional in profissionais %}
                       <option value="{{ profissional.id }}" {% if request.GET.profissional == profissional.id|stringformat:"s" %}selected{% endif %}>
@@ -27,6 +27,7 @@
                       </option>
                   {% endfor %}
               </select>
+              &nbsp;
               {% if request.GET.profissional %}
                   <a href="{% url 'atendimentos_do_dia' %}" class="btn btn-primary">Limpar</a>
               {% endif %}
@@ -47,7 +48,7 @@
             <tbody>
                 {% for agendamento in atendimentos %}
                 <tr {% if agendamento.finalizado %}style="background-color: lightcoral;"{% endif %}>
-                    <td>{{ agendamento.hora_inicio|time:"H:i" }} - {{ agendamento.hora_fim|time:"H:i" }}</td>
+                    <td style="background-color:aquamarine; color:black;">{{ agendamento.hora_inicio|time:"H:i" }} - {{ agendamento.hora_fim|time:"H:i" }}</td>
                     <td>{{ agendamento.cliente.nome }}</td>                    
                     <td>{{ agendamento.descricao }}</td>
                     <td>

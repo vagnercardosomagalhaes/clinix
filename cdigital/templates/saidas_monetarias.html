@@ -139,19 +139,19 @@
                     <th style="width: 100px;">Credor</th>
                     <th style="width: 200px;">Favorecido</th>
                     <th style="width: 180px;">Descrição</th>
-                    <th style="width: 70px;">Valor</th>
+                    <th style="width: 70px;">Valor R$</th>
                     <th style="width: 50px;">Conta</th>
-                    <th style="width: 120px;">Ações</th>
+                    <th style="width: 100px;">Ações</th>
                 </tr>
             </thead>
             <tbody>
             {% for saida in saidas %}
                 <tr>
-                    <td>{{ saida.vencimento|date:"d/m/Y" }}</td>
+                    <td style="background-color:aquamarine; color:black;">{{ saida.vencimento|date:"d/m/Y" }}</td>
                     <td>{{ saida.credor }}</td>
                     <td>{{ saida.favorecido }}</td>
                     <td>{{ saida.descricao }}</td>
-                    <td>R$ {{ saida.valor|floatformat:2 }}</td>
+                    <td style="background-color:lightsalmon; color:black;">{{ saida.valor|floatformat:2 }}</td>
                     <td>
                         {% if saida.conta_origem %}
                             {{ saida.conta_origem.simbolo }}
@@ -179,8 +179,8 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4"><strong>Total do período:</strong></td>
-                    <td colspan="2"><strong>R$ {{ total|floatformat:2 }}</strong></td>
+                    <td colspan="4" style="background-color:gold; color:black;"><strong>Total do período R$:</strong></td>
+                    <td colspan="2" style="text-align: left; background-color:lightsalmon; color:black;"><strong>{{ total|floatformat:2 }}</strong></td>
                 </tr>
             </tfoot>
         </table>

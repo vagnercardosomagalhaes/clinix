@@ -54,9 +54,9 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'cdigital.middleware.ClienteDBMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files in production
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',  # <-- TEM QUE VIR AQUI
+    'cdigital.middleware.ClienteDBMiddleware',               # <-- DEPOIS da sessão
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -181,3 +181,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://3df7d7555a8d.ngrok-free.app',
 ]
 
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_HTTPONLY = True
