@@ -83,15 +83,15 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Data</th>
-                    <th>Descrição</th>
-                    <th>Ação</th>
+                    <th style="background-color: black; color: ghostwhite;">Data</th>
+                    <th style="background-color: black; color: ghostwhite;">Descrição</th>
+                    <th style="background-color: black; color: ghostwhite;">Ação</th>
                 </tr>
             </thead>
             <tbody>
                 {% for atendimento in atendimentos_anteriores %}
                 <tr>
-                    <td>{{ atendimento.data|date:"d/m/Y" }}</td>
+                    <td style="background-color:aquamarine;">{{ atendimento.data|date:"d/m/Y" }}</td>
                     <td>{{ atendimento.descricao|truncatechars:50 }}</td>
                     <td>
                         <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalDescricao{{ atendimento.id }}">

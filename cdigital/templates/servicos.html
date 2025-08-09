@@ -20,8 +20,8 @@
         <div class="alert alert-success">{{ message }}</div>
     {% endfor %}
     {% endif %}
-    <h2>Cadastro de Serviços</h2>
-
+    <h2>Cadastro de Serviços</h2>(<h7 style="color:blue">Usar preferencialmente terminologia da tabela TUSS</h7>)
+    <p>
     <form method="post" action="{% url 'servicos' %}">
         {% csrf_token %}
         {% if form.instance.pk %}
@@ -42,19 +42,19 @@
 
     <hr>
 
-    <h4>Serviços Cadastrados</h4>
+    <h4>Serviços Cadastrados</h4>    
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Código</th>
-                <th>Descrição</th>
-                <th>Ações</th>
+                <th style="background-color: black; color: ghostwhite;">Código</th>
+                <th style="background-color: black; color: ghostwhite;">Descrição</th>
+                <th style="background-color: black; color: ghostwhite;">Ações</th>
             </tr>
         </thead>
         <tbody>
             {% for servico in servicos %}
             <tr>
-                <td>{{ servico.codigo }}</td>
+                <td style="background-color: aquamarine;">{{ servico.codigo }}</td>
                 <td>{{ servico.descricao }}</td>
                 <td>
                     <a href="{% url 'editar_servico' servico.id %}" class="btn btn-sm btn-info">Editar</a>

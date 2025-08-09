@@ -22,7 +22,7 @@
               <select name="profissional" class="form-select" style="width: 380px; height: 33px;background-color: bisque; border-radius: 7px;" onchange="this.form.submit()" style="width: 250px;">
                   <option value="">Todos os profissionais</option>
                   {% for profissional in profissionais %}
-                      <option value="{{ profissional.id }}" {% if request.GET.profissional == profissional.id|stringformat:"s" %}selected{% endif %}>
+                      <option value="{{ profissional.id }}" {% if profissional_id == profissional.id|stringformat:"s" %}selected{% endif %}>
                           {{ profissional.nome }}
                       </option>
                   {% endfor %}

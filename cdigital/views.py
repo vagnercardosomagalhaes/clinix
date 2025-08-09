@@ -463,6 +463,15 @@ def atendimentos_do_dia(request):
     profissional_id = request.GET.get('profissional')  # captura o profissional do filtro (GET)
     profissionais = Usuarios.objects.filter(is_medico=True)
 
+    # Se veio na URL, salva na sessão
+    if profissional_id is not None:
+        request.session['ultimo_profissional'] = profissional_id
+
+    # Se não veio na URL, tenta usar o último salvo
+    if not profissional_id and 'ultimo_profissional' in request.session:
+        profissional_id = request.session['ultimo_profissional']        
+
+
     # Começa com todos os agendamentos do dia
     atendimentos = Agenda.objects.filter(data=data_hoje)
 
@@ -477,6 +486,7 @@ def atendimentos_do_dia(request):
         'data_hoje': data_hoje,
         'atendimentos': atendimentos,
         'profissionais': profissionais,
+        'profissional_id': profissional_id,  # Envia para o template
     }
 
     return render(request, 'atendimentos.html', context)
@@ -862,10 +872,17 @@ def contas_pagar(request):
         return redirect('contas_pagar')
 
     # GET
-    contas = ContaPagar.objects.all().order_by('-vencimento')
+    contas = ContaPagar.objects.all().order_by('vencimento')
     data_de = request.GET.get('data_de')
     data_ate = request.GET.get('data_ate')
     filtro_credor = request.GET.get('filtro_credor', '')
+
+    # Se não informado, usar data atual
+    if not data_de:
+        data_de = date.today().strftime('%Y-%m-%d')
+    if not data_ate:
+        data_ate = date.today().strftime('%Y-%m-%d')
+
 
     if data_de and data_ate:
         contas = contas.filter(vencimento__range=[data_de, data_ate])
@@ -959,11 +976,17 @@ def contas_receber(request):
         return redirect('contas_receber')
 
     # GET - Listagem
-    contas = ContaReceber.objects.all().order_by('-vencimento')
+    contas = ContaReceber.objects.all().order_by('vencimento')
     data_de = request.GET.get('data_de')
     data_ate = request.GET.get('data_ate')
     filtro_cliente = request.GET.get('filtro_cliente')
     servicos = Servico.objects.all()
+
+    # Se não informado, usar data atual
+    if not data_de:
+        data_de = date.today().strftime('%Y-%m-%d')
+    if not data_ate:
+        data_ate = date.today().strftime('%Y-%m-%d')
 
     if data_de and data_ate:
         contas = contas.filter(vencimento__range=[data_de, data_ate])
@@ -1048,6 +1071,12 @@ def entradas_monetarias(request):
     filtro_cliente = request.GET.get('filtro_cliente', '')
     entradas = EntradasMonetarias.objects.all()
 
+    # Se não informado, usar data atual
+    if not data_de:
+        data_de = date.today().strftime('%Y-%m-%d')
+    if not data_ate:
+        data_ate = date.today().strftime('%Y-%m-%d')
+
     if data_de:
         entradas = entradas.filter(vencimento__gte=data_de)
     if data_ate:
@@ -1055,7 +1084,7 @@ def entradas_monetarias(request):
     if filtro_cliente:
         entradas = entradas.filter(cliente__icontains=filtro_cliente)    
 
-    entradas = entradas.order_by('-vencimento')
+    entradas = entradas.order_by('vencimento')
     total = entradas.aggregate(Sum('valor'))['valor__sum'] or 0
 
     clientes = EntradasMonetarias.objects.values_list('cliente', flat=True).distinct()
@@ -1131,10 +1160,16 @@ def saidas_monetarias(request):
         return redirect('saidas_monetarias')
 
     # GET
-    saidas = SaidasMonetarias.objects.all().order_by('-vencimento')
+    saidas = SaidasMonetarias.objects.all().order_by('vencimento')
     data_de = request.GET.get('data_de')
     data_ate = request.GET.get('data_ate')
     filtro_credor = request.GET.get('filtro_credor', '')
+
+    # Se não informado, usar data atual
+    if not data_de:
+        data_de = date.today().strftime('%Y-%m-%d')
+    if not data_ate:
+        data_ate = date.today().strftime('%Y-%m-%d')
 
     if data_de and data_ate:
         saidas = saidas.filter(vencimento__range=[data_de, data_ate])
